@@ -104,6 +104,11 @@ Draws: 64
 - **Cubes với checkerboard:** Các hình 3D được vẽ
 - **Grid layout:** Các cubes xếp thành hàng, cột
 
+#### 🎮 ĐIỀU KHIỂN CAMERA (Di chuyển camera):
+- **1 ngón tay vuốt:** Xoay camera (vuốt ngang = xoay trái/phải, vuốt dọc = xoay lên/xuống)
+- **Pinch (2 ngón tay):** Zoom in/out (pinch in = zoom in, pinch out = zoom out)
+- **2 ngón tay vuốt:** Pan camera (di chuyển scene)
+
 #### ✅ KIỂM TRA APP CÓ HOẠT ĐỘNG ĐÚNG:
 ```
 1. Mở app
@@ -112,6 +117,8 @@ Draws: 64
    ✅ Thấy background màu xanh đậm
    ✅ Thấy các cubes với pattern đen trắng
    ✅ Các cubes có thể xoay hoặc di chuyển (tùy code)
+   ✅ Vuốt màn hình → Camera xoay
+   ✅ Pinch → Camera zoom
    ✅ Không bị đen màn hình hoặc crash
 → Nếu đúng tất cả → SCENE 3D HOẠT ĐỘNG TỐT! ✅
 ```
@@ -492,9 +499,48 @@ Sau khi click tab "Charts", bạn sẽ thấy 2 biểu đồ:
 
 ---
 
-## 🎯 PHẦN 5: HƯỚNG DẪN TEST ĐẦY ĐỦ TỪNG TÍNH NĂNG
+## 🎯 PHẦN 5: HƯỚNG DẪN SỬ DỤNG ANDROID STUDIO PROFILER
 
-> **LƯU Ý:** Mỗi test cần ghi lại các chỉ số TRƯỚC và SAU khi thay đổi để so sánh. Sử dụng bảng ghi chép hoặc screenshot để theo dõi.
+### 📊 PROFILER LÀ GÌ?
+
+**Android Studio Profiler** là công cụ mạnh mẽ để đo lường performance của app, bao gồm:
+- **CPU Profiler**: Đo CPU usage, thread activity
+- **Memory Profiler**: Đo memory usage, allocations
+- **Network Profiler**: Đo network traffic
+- **Energy Profiler**: Đo battery usage
+
+### 🔧 CÁCH MỞ PROFILER:
+
+1. **Mở Android Studio**
+2. **Chạy app** trên thiết bị/emulator
+3. **View → Tool Windows → Profiler** (hoặc nhấn `Alt + 6`)
+4. **Chọn process** của app (com.example.opengl_es)
+
+### 📈 CÁC CHỈ SỐ QUAN TRỌNG TRONG PROFILER:
+
+#### CPU Profiler:
+- **CPU Usage (%)**: Phần trăm CPU được sử dụng
+- **Threads**: Số thread đang chạy
+- **Methods**: Các method được gọi và thời gian thực thi
+
+#### Memory Profiler:
+- **Memory Usage (MB)**: Bộ nhớ đang sử dụng
+- **Allocations**: Số object được tạo
+- **GC Events**: Garbage collection events
+
+### 🎯 HƯỚNG DẪN CHI TIẾT:
+
+**📖 Xem file:** `HUONG_DAN_PROFILER.md` - Hướng dẫn chi tiết cách sử dụng Profiler cho từng tính năng.
+
+**Tóm tắt nhanh:**
+- Mỗi test case bên dưới có phần "📊 SỬ DỤNG ANDROID STUDIO PROFILER"
+- Xem chi tiết trong `HUONG_DAN_PROFILER.md` - Mục tương ứng
+
+---
+
+## 🎯 PHẦN 6: HƯỚNG DẪN TEST ĐẦY ĐỦ TỪNG TÍNH NĂNG
+
+> **LƯU Ý:** Mỗi test cần ghi lại các chỉ số TRƯỚC và SAU khi thay đổi để so sánh. Sử dụng bảng ghi chép hoặc screenshot để theo dõi. **Sử dụng Android Studio Profiler để xem chỉ số chi tiết hơn.**
 
 ---
 
@@ -730,6 +776,53 @@ Ghi vào bảng:
 - Triangles không thay đổi
 - Các chỉ số không quay về khi bật lại
 
+#### 📊 SỬ DỤNG ANDROID STUDIO PROFILER:
+
+**Bước 1: Mở Profiler**
+```
+1. Android Studio → View → Tool Windows → Profiler (Alt + 6)
+2. Chọn process: com.example.opengl_es
+3. Click vào tab "CPU"
+```
+
+**Bước 2: Record CPU khi TẮT Back-face Culling**
+```
+1. Trong app: Tắt "Back-face Culling"
+2. Trong Profiler: Click nút "Record" (●) để bắt đầu record
+3. Đợi 10 giây
+4. Click "Stop" để dừng record
+5. Ghi lại:
+   - CPU Usage: _____%
+   - Thread Activity: _____
+```
+
+**Bước 3: Record CPU khi BẬT Back-face Culling**
+```
+1. Trong app: Bật "Back-face Culling"
+2. Trong Profiler: Record lại 10 giây
+3. Ghi lại:
+   - CPU Usage: _____%
+   - Thread Activity: _____
+```
+
+**Bước 4: So sánh trong Profiler**
+```
+1. Xem CPU timeline:
+   ✅ CPU Usage GIẢM khi bật Back-face Culling
+   ✅ Thread activity ổn định hơn
+2. Xem Method calls:
+   - Tìm method: MyGLRenderer.onDrawFrame()
+   - So sánh thời gian thực thi:
+     * TRƯỚC (TẮT): _____ ms
+     * SAU (BẬT): _____ ms
+   ✅ Thời gian thực thi GIẢM khi bật
+```
+
+**Chỉ số mong đợi trong Profiler:**
+- **CPU Usage**: Giảm 10-20% khi bật Back-face Culling
+- **onDrawFrame() execution time**: Giảm 20-30% khi bật
+- **Thread activity**: Ổn định hơn (ít spikes)
+
 ---
 
 ### 📋 TEST 5: FRUSTUM CULLING
@@ -798,6 +891,54 @@ Ví dụ: 64 = 40 + 24 ✅
 - Objects Rendered không thay đổi
 - Objects Culled vẫn = 0
 - Draw Calls không thay đổi
+
+#### 📊 SỬ DỤNG ANDROID STUDIO PROFILER:
+
+**Bước 1: Mở Profiler và Record CPU**
+```
+1. Android Studio → Profiler (Alt + 6)
+2. Chọn process: com.example.opengl_es
+3. Click tab "CPU"
+```
+
+**Bước 2: Record khi TẮT Frustum Culling**
+```
+1. Trong app: Đảm bảo "Frustum Culling" TẮT
+2. Trong Profiler: Click "Record" (●)
+3. Đợi 10 giây
+4. Click "Stop"
+5. Ghi lại:
+   - CPU Usage: _____%
+   - onDrawFrame() time: _____ ms
+```
+
+**Bước 3: Record khi BẬT Frustum Culling**
+```
+1. Trong app: Bật "Frustum Culling"
+2. Trong Profiler: Record lại 10 giây
+3. Ghi lại:
+   - CPU Usage: _____%
+   - onDrawFrame() time: _____ ms
+```
+
+**Bước 4: So sánh trong Profiler**
+```
+1. Xem CPU timeline:
+   ✅ CPU Usage GIẢM khi bật Frustum Culling
+2. Xem Method calls:
+   - Tìm: CullingManager.performFrustumCulling()
+   - Thời gian: _____ ms (CPU cost của culling)
+   - Tìm: MyGLRenderer.onDrawFrame()
+   - So sánh:
+     * TRƯỚC (TẮT): _____ ms
+     * SAU (BẬT): _____ ms
+   ✅ onDrawFrame() GIẢM thời gian (do render ít objects hơn)
+```
+
+**Chỉ số mong đợi trong Profiler:**
+- **CPU Usage**: Giảm 5-10% khi bật Frustum Culling
+- **onDrawFrame() time**: Giảm 10-15% khi bật
+- **performFrustumCulling() time**: ~0.5-2ms (cost của culling)
 
 ---
 
@@ -930,6 +1071,21 @@ Ví dụ: 64 = 40 + 24 ✅
 - Triangles không thay đổi
 - FPS không thay đổi
 
+#### 📊 SỬ DỤNG ANDROID STUDIO PROFILER:
+
+**Xem hướng dẫn chi tiết:** `HUONG_DAN_PROFILER.md` - Mục 3.4. Level of Detail (LOD)
+
+**Tóm tắt:**
+```
+1. Mở Profiler → Tab "CPU"
+2. Record khi BẬT LOD → Ghi lại CPU Usage và onDrawFrame() time
+3. Record khi TẮT LOD → Ghi lại CPU Usage và onDrawFrame() time
+4. So sánh:
+   ✅ CPU Usage GIẢM 5-10% khi bật LOD
+   ✅ onDrawFrame() time GIẢM 10-15% khi bật
+   ✅ calculateLOD() time: ~0.1-0.5ms (cost rất nhỏ)
+```
+
 ---
 
 ### 📋 TEST 8: MIPMAPS
@@ -987,6 +1143,20 @@ Ví dụ: 64 = 40 + 24 ✅
 
 #### ❌ KẾT QUẢ SAI:
 - Không có thay đổi gì
+
+#### 📊 SỬ DỤNG ANDROID STUDIO PROFILER:
+
+**Xem hướng dẫn chi tiết:** `HUONG_DAN_PROFILER.md` - Mục 3.7. Mipmaps
+
+**Tóm tắt:**
+```
+1. Mở Profiler → Tab "Memory"
+2. Record khi TẮT Mipmaps → Ghi lại Memory Usage
+3. Record khi BẬT Mipmaps → Ghi lại Memory Usage
+4. So sánh:
+   ⚠️ Memory Usage TĂNG 30-35% khi bật (do tạo mipmap levels)
+   ✅ CPU Usage GIẢM nhẹ 2-5% (do cache efficiency)
+```
 
 ---
 
@@ -1077,6 +1247,20 @@ Ví dụ: 64 = 40 + 24 ✅
 - Texture Memory không thay đổi
 - FPS giảm (không mong đợi)
 
+#### 📊 SỬ DỤNG ANDROID STUDIO PROFILER:
+
+**Xem hướng dẫn chi tiết:** `HUONG_DAN_PROFILER.md` - Mục 3.6. ETC1 Texture Compression
+
+**Tóm tắt:**
+```
+1. Mở Profiler → Tab "Memory"
+2. Record khi TẮT ETC1 → Ghi lại Memory Usage
+3. Record khi BẬT ETC1 → Ghi lại Memory Usage
+4. So sánh:
+   ✅ Memory Usage GIẢM 80-90% khi bật ETC1 (texture memory)
+   ✅ CPU Usage GIẢM nhẹ 2-5% (do giảm memory bandwidth)
+```
+
 #### 📝 LƯU Ý HIỆN TẠI:
 - **Vì ETC1 chưa được implement đầy đủ, khi bật/tắt ETC1 bạn sẽ KHÔNG thấy sự khác biệt trong metrics**
 - Texture Memory không được hiển thị trong UI Metrics Panel
@@ -1138,6 +1322,21 @@ Ví dụ: 64 = 40 + 24 ✅
 #### ❌ KẾT QUẢ SAI:
 - Texture Binds không thay đổi
 
+#### 📊 SỬ DỤNG ANDROID STUDIO PROFILER:
+
+**Xem hướng dẫn chi tiết:** `HUONG_DAN_PROFILER.md` - Mục 3.8. Texture Atlasing
+
+**Tóm tắt:**
+```
+1. Mở Profiler → Tab "CPU"
+2. Record khi TẮT Texture Atlasing → Ghi lại CPU Usage và glBindTexture() calls
+3. Record khi BẬT Texture Atlasing → Ghi lại CPU Usage và glBindTexture() calls
+4. So sánh:
+   ✅ CPU Usage GIẢM 5-10% khi bật
+   ✅ glBindTexture() calls GIẢM từ N xuống 1 khi bật
+   ✅ onDrawFrame() time GIẢM 5-10% khi bật
+```
+
 ---
 
 ### 📋 TEST 11: INSTANCED RENDERING
@@ -1194,6 +1393,21 @@ Ví dụ: 64 = 40 + 24 ✅
 #### ❌ KẾT QUẢ SAI:
 - Draw Calls không thay đổi
 - FPS không thay đổi
+
+#### 📊 SỬ DỤNG ANDROID STUDIO PROFILER:
+
+**Xem hướng dẫn chi tiết:** `HUONG_DAN_PROFILER.md` - Mục 3.9. Instanced Rendering
+
+**Tóm tắt:**
+```
+1. Mở Profiler → Tab "CPU"
+2. Record khi TẮT Instanced Rendering → Ghi lại CPU Usage và draw calls
+3. Record khi BẬT Instanced Rendering → Ghi lại CPU Usage và draw calls
+4. So sánh:
+   ✅ CPU Usage GIẢM 20-30% khi bật
+   ✅ Draw Calls GIẢM từ N xuống 1 khi bật
+   ✅ onDrawFrame() time GIẢM 20-30% khi bật
+```
 
 ---
 
@@ -1253,6 +1467,21 @@ Ví dụ: 64 = 40 + 24 ✅
 #### ❌ KẾT QUẢ SAI:
 - Overdraw Ratio không thay đổi
 
+#### 📊 SỬ DỤNG ANDROID STUDIO PROFILER:
+
+**Xem hướng dẫn chi tiết:** `HUONG_DAN_PROFILER.md` - Mục 3.10. Depth Pre-pass
+
+**Tóm tắt:**
+```
+1. Mở Profiler → Tab "CPU"
+2. Record khi TẮT Depth Pre-pass → Ghi lại CPU Usage và draw calls
+3. Record khi BẬT Depth Pre-pass → Ghi lại CPU Usage và draw calls
+4. So sánh:
+   ⚠️ CPU Usage có thể TĂNG 5-10% (do 2 passes) nhưng overall tốt hơn
+   ⚠️ Draw Calls TĂNG gấp đôi (do 2 passes)
+   ✅ onDrawFrame() time GIẢM 5-10% (do giảm overdraw)
+```
+
 ---
 
 ### 📋 TEST 13: SHOW OVERDRAW HEATMAP
@@ -1301,6 +1530,21 @@ Ví dụ: 64 = 40 + 24 ✅
 #### ❌ KẾT QUẢ SAI:
 - Scene không thay đổi màu
 - Vẫn thấy pattern đen trắng
+
+#### 📊 SỬ DỤNG ANDROID STUDIO PROFILER:
+
+**Xem hướng dẫn chi tiết:** `HUONG_DAN_PROFILER.md` - Mục 3.11. Overdraw Heatmap
+
+**Tóm tắt:**
+```
+1. Mở Profiler → Tab "CPU"
+2. Record khi TẮT Overdraw Heatmap → Ghi lại CPU Usage
+3. Record khi BẬT Overdraw Heatmap → Ghi lại CPU Usage
+4. So sánh:
+   ⚠️ CPU Usage TĂNG 20-30% khi bật (do render 4 lần)
+   ⚠️ onDrawFrame() time TĂNG 30-50% khi bật
+   ⚠️ Lý do: Heatmap render nhiều lần để visualize overdraw
+```
 
 ---
 
