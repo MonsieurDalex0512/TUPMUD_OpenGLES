@@ -492,57 +492,1419 @@ Sau khi click tab "Charts", bạn sẽ thấy 2 biểu đồ:
 
 ---
 
-## 🎯 PHẦN 5: TEST CỤ THỂ TỪNG TÍNH NĂNG
+## 🎯 PHẦN 5: HƯỚNG DẪN TEST ĐẦY ĐỦ TỪNG TÍNH NĂNG
 
-### TEST 1: Back-face Culling
+> **LƯU Ý:** Mỗi test cần ghi lại các chỉ số TRƯỚC và SAU khi thay đổi để so sánh. Sử dụng bảng ghi chép hoặc screenshot để theo dõi.
+
+---
+
+### 📋 TEST 1: HUD OVERLAY (Góc trên trái)
+
+#### Mục đích: Kiểm tra HUD hiển thị và cập nhật đúng
+
+#### Bước test:
+
+**Bước 1: Khởi động app**
 ```
-Bước 1: Mở app, ghi lại FPS ban đầu (ví dụ: 80 FPS)
-Bước 2: Mở bottom sheet → Tab "Controls"
-Bước 3: Tắt "Back-face Culling"
-Bước 4: Quan sát HUD → FPS giảm (ví dụ: 50 FPS)
-Bước 5: Bật lại "Back-face Culling"
-Bước 6: Quan sát HUD → FPS tăng lại (ví dụ: 80 FPS)
-
-✅ KẾT QUẢ ĐÚNG: FPS giảm khi tắt, tăng khi bật
-❌ KẾT QUẢ SAI: FPS không thay đổi
-```
-
-### TEST 2: Frustum Culling
-```
-Bước 1: Mở tab "Metrics", ghi lại "Objects Rendered" (ví dụ: 64)
-Bước 2: Quay lại tab "Controls"
-Bước 3: Bật "Frustum Culling"
-Bước 4: Quay lại tab "Metrics"
-Bước 5: Quan sát "Objects Rendered" giảm (ví dụ: 40)
-Bước 6: Quan sát "Objects Culled" tăng (ví dụ: 24)
-
-✅ KẾT QUẢ ĐÚNG: Objects Rendered giảm, Objects Culled tăng
-❌ KẾT QUẢ SAI: Không thay đổi
+1. Mở app
+2. Đợi 3-5 giây để app render ổn định
+3. Quan sát góc trên trái màn hình
 ```
 
-### TEST 3: LOD (Level of Detail)
+**Bước 2: Ghi lại các chỉ số ban đầu**
 ```
-Bước 1: Mở tab "Metrics", ghi lại "Triangles" (ví dụ: 2000)
-Bước 2: Quay lại tab "Controls"
-Bước 3: Tắt "Level of Detail (LOD)"
-Bước 4: Quay lại tab "Metrics"
-Bước 5: Quan sát "Triangles" tăng (ví dụ: 3000)
-Bước 6: Bật lại LOD → Triangles giảm
+Ghi vào bảng:
+┌─────────────────┬──────────┐
+│ Chỉ số          │ Giá trị  │
+├─────────────────┼──────────┤
+│ FPS             │ _____    │
+│ Frame (ms)      │ _____    │
+│ Draws           │ _____    │
+└─────────────────┴──────────┘
+```
 
-✅ KẾT QUẢ ĐÚNG: Triangles tăng khi tắt LOD, giảm khi bật
-❌ KẾT QUẢ SAI: Triangles không thay đổi
+**Bước 3: Kiểm tra cập nhật real-time**
+```
+1. Quan sát HUD trong 10 giây
+2. Kiểm tra:
+   ✅ FPS thay đổi liên tục (không đứng yên)
+   ✅ Frame Time thay đổi liên tục
+   ✅ Draws có thể thay đổi hoặc cố định
 ```
 
-### TEST 4: Charts Update
+**Bước 4: Kiểm tra giá trị hợp lệ**
 ```
-Bước 1: Mở tab "Charts"
-Bước 2: Quan sát FPS chart
-Bước 3: Đợi 10 giây
-Bước 4: Quan sát chart cập nhật (đường xanh thay đổi)
+✅ FPS > 0 và < 120 (thường 30-90)
+✅ Frame Time > 0 và < 100 ms (thường 10-30 ms)
+✅ Draws > 0 (thường 20-100)
+```
 
-✅ KẾT QUẢ ĐÚNG: Chart cập nhật liên tục
-❌ KẾT QUẢ SAI: Chart đứng yên, không cập nhật
+#### ✅ KẾT QUẢ ĐÚNG:
+- Tất cả 3 chỉ số hiển thị
+- Các số thay đổi liên tục (không đứng yên)
+- Giá trị nằm trong khoảng hợp lệ
+
+#### ❌ KẾT QUẢ SAI:
+- FPS = 0 hoặc không hiển thị
+- Frame Time = 0 hoặc rất cao (> 100 ms)
+- Draws = 0
+- Các số đứng yên, không thay đổi
+
+---
+
+### 📋 TEST 2: SCENE 3D (Màn hình chính)
+
+#### Mục đích: Kiểm tra scene 3D render đúng
+
+#### Bước test:
+
+**Bước 1: Kiểm tra background**
 ```
+1. Quan sát toàn bộ màn hình
+2. Kiểm tra:
+   ✅ Background màu xanh đậm (không phải đen)
+   ✅ Không có lỗi hiển thị (artifacts, glitches)
+```
+
+**Bước 2: Kiểm tra cubes**
+```
+1. Quan sát các hình 3D
+2. Kiểm tra:
+   ✅ Thấy các cubes (hình vuông 3D)
+   ✅ Các cubes có pattern đen trắng (checkerboard)
+   ✅ Các cubes xếp thành grid (lưới)
+   ✅ Số lượng cubes hợp lý (thường 64-100 cubes)
+```
+
+**Bước 3: Kiểm tra animation (nếu có)**
+```
+1. Quan sát trong 5 giây
+2. Kiểm tra:
+   ✅ Các cubes có thể xoay hoặc di chuyển
+   ✅ Animation mượt mà (không giật)
+```
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Background xanh đậm
+- Thấy cubes với pattern checkerboard
+- Animation mượt (nếu có)
+
+#### ❌ KẾT QUẢ SAI:
+- Màn hình đen hoàn toàn
+- Chỉ thấy background, không thấy cubes
+- Cubes không có pattern
+- Animation giật hoặc không mượt
+
+---
+
+### 📋 TEST 3: FAB BUTTON VÀ BOTTOM SHEET
+
+#### Mục đích: Kiểm tra UI controls hoạt động đúng
+
+#### Bước test:
+
+**Bước 1: Kiểm tra FAB button**
+```
+1. Quan sát góc dưới phải màn hình
+2. Kiểm tra:
+   ✅ Thấy nút tròn (FAB)
+   ✅ Nút có icon (bánh răng hoặc menu)
+   ✅ Nút có màu (xanh hoặc màu theme)
+```
+
+**Bước 2: Test mở bottom sheet**
+```
+1. Nhấn vào FAB button
+2. Quan sát:
+   ✅ Bottom sheet trượt lên từ dưới
+   ✅ Animation mượt mà
+   ✅ Thấy 3 tabs: "Controls", "Metrics", "Charts"
+```
+
+**Bước 3: Test đóng bottom sheet**
+```
+1. Nhấn lại FAB button (hoặc vuốt xuống)
+2. Quan sát:
+   ✅ Bottom sheet trượt xuống
+   ✅ Animation mượt mà
+   ✅ Scene 3D hiển thị lại bình thường
+```
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- FAB button hiển thị và có thể nhấn
+- Bottom sheet mở/đóng mượt mà
+- 3 tabs hiển thị đúng
+
+#### ❌ KẾT QUẢ SAI:
+- FAB button không hiển thị
+- Nhấn FAB không có phản ứng
+- Bottom sheet không mở
+- Thiếu tabs
+
+---
+
+### 📋 TEST 4: BACK-FACE CULLING
+
+#### Mục đích: Kiểm tra tối ưu hóa Back-face Culling hoạt động đúng
+
+#### Bước test:
+
+**Bước 1: Ghi lại chỉ số ban đầu (Back-face Culling BẬT)**
+```
+1. Mở app, đợi ổn định 5 giây
+2. Mở bottom sheet → Tab "Controls"
+3. Đảm bảo "Back-face Culling" đang BẬT (☑)
+4. Ghi lại các chỉ số từ HUD (góc trên trái):
+┌─────────────────┬──────────┐
+│ Chỉ số          │ Giá trị  │
+├─────────────────┼──────────┤
+│ FPS             │ _____    │
+│ Frame (ms)      │ _____    │
+│ Draws           │ _____    │
+└─────────────────┴──────────┘
+5. Mở tab "Metrics", ghi lại:
+┌──────────────────────┬──────────┐
+│ Chỉ số              │ Giá trị  │
+├──────────────────────┼──────────┤
+│ Avg Frame Time (ms)  │ _____    │
+│ Triangles            │ _____    │
+│ Objects Rendered     │ _____    │
+└──────────────────────┴──────────┘
+```
+
+**Bước 2: Tắt Back-face Culling**
+```
+1. Quay lại tab "Controls"
+2. Tắt "Back-face Culling" (☐)
+3. Đợi 3-5 giây để app áp dụng thay đổi
+```
+
+**Bước 3: Ghi lại chỉ số sau khi TẮT**
+```
+1. Quan sát HUD (góc trên trái), ghi lại:
+┌─────────────────┬──────────┬──────────┐
+│ Chỉ số          │ TRƯỚC    │ SAU      │
+├─────────────────┼──────────┼──────────┤
+│ FPS             │ _____    │ _____   │
+│ Frame (ms)      │ _____    │ _____   │
+│ Draws           │ _____    │ _____   │
+└─────────────────┴──────────┴──────────┘
+2. Mở tab "Metrics", ghi lại:
+┌──────────────────────┬──────────┬──────────┐
+│ Chỉ số              │ TRƯỚC    │ SAU      │
+├──────────────────────┼──────────┼──────────┤
+│ Avg Frame Time (ms)  │ _____    │ _____   │
+│ Triangles            │ _____    │ _____   │
+│ Objects Rendered     │ _____    │ _____   │
+└──────────────────────┴──────────┴──────────┘
+```
+
+**Bước 4: Bật lại Back-face Culling**
+```
+1. Quay lại tab "Controls"
+2. Bật "Back-face Culling" (☑)
+3. Đợi 3-5 giây
+4. Quan sát các chỉ số quay về gần giá trị ban đầu
+```
+
+#### So sánh và phân tích:
+
+**Kết quả mong đợi khi TẮT Back-face Culling:**
+- ✅ FPS **GIẢM** (ví dụ: 80 → 50 FPS)
+- ✅ Frame Time **TĂNG** (ví dụ: 12 ms → 20 ms)
+- ✅ Triangles **TĂNG** (ví dụ: 2000 → 3000)
+- ✅ Avg Frame Time **TĂNG**
+
+**Kết quả mong đợi khi BẬT lại:**
+- ✅ FPS **TĂNG** về gần giá trị ban đầu
+- ✅ Frame Time **GIẢM** về gần giá trị ban đầu
+- ✅ Triangles **GIẢM** về gần giá trị ban đầu
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- FPS giảm ít nhất 20-30% khi tắt
+- Triangles tăng ít nhất 50% khi tắt (vì render cả mặt sau)
+- Các chỉ số quay về gần ban đầu khi bật lại
+
+#### ❌ KẾT QUẢ SAI:
+- FPS không thay đổi khi toggle
+- Triangles không thay đổi
+- Các chỉ số không quay về khi bật lại
+
+---
+
+### 📋 TEST 5: FRUSTUM CULLING
+
+#### Mục đích: Kiểm tra tối ưu hóa Frustum Culling hoạt động đúng
+
+#### Bước test:
+
+**Bước 1: Ghi lại chỉ số ban đầu (Frustum Culling TẮT)**
+```
+1. Mở app, đợi ổn định 5 giây
+2. Mở bottom sheet → Tab "Controls"
+3. Đảm bảo "Frustum Culling" đang TẮT (☐)
+4. Mở tab "Metrics", ghi lại:
+┌──────────────────────┬──────────┐
+│ Chỉ số              │ Giá trị  │
+├──────────────────────┼──────────┤
+│ Objects Rendered     │ _____    │
+│ Objects Culled       │ _____    │
+│ Draw Calls (HUD)     │ _____    │
+│ FPS                  │ _____    │
+└──────────────────────┴──────────┘
+```
+
+**Bước 2: Bật Frustum Culling**
+```
+1. Quay lại tab "Controls"
+2. Bật "Frustum Culling" (☑)
+3. Đợi 3-5 giây
+```
+
+**Bước 3: Ghi lại chỉ số sau khi BẬT**
+```
+1. Mở tab "Metrics", ghi lại:
+┌──────────────────────┬──────────┬──────────┐
+│ Chỉ số              │ TRƯỚC    │ SAU      │
+├──────────────────────┼──────────┼──────────┤
+│ Objects Rendered     │ _____    │ _____   │
+│ Objects Culled       │ _____    │ _____   │
+│ Draw Calls (HUD)     │ _____    │ _____   │
+│ FPS                  │ _____    │ _____   │
+└──────────────────────┴──────────┴──────────┘
+```
+
+#### So sánh và phân tích:
+
+**Kết quả mong đợi khi BẬT Frustum Culling:**
+- ✅ Objects Rendered **GIẢM** (ví dụ: 64 → 40)
+- ✅ Objects Culled **TĂNG** (ví dụ: 0 → 24)
+- ✅ Draw Calls **GIẢM** (ví dụ: 64 → 40)
+- ✅ FPS **TĂNG** nhẹ (ví dụ: 75 → 80 FPS)
+
+**Công thức kiểm tra:**
+```
+Objects Rendered (TRƯỚC) = Objects Rendered (SAU) + Objects Culled (SAU)
+Ví dụ: 64 = 40 + 24 ✅
+```
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Objects Rendered giảm
+- Objects Culled tăng (từ 0 lên > 0)
+- Tổng Objects Rendered + Objects Culled = giá trị ban đầu
+- FPS tăng nhẹ (do render ít objects hơn)
+
+#### ❌ KẾT QUẢ SAI:
+- Objects Rendered không thay đổi
+- Objects Culled vẫn = 0
+- Draw Calls không thay đổi
+
+---
+
+### 📋 TEST 6: OCCLUSION CULLING
+
+#### Mục đích: Kiểm tra tối ưu hóa Occlusion Culling hoạt động đúng
+
+#### Bước test:
+
+**Bước 1: Ghi lại chỉ số ban đầu (Occlusion Culling TẮT)**
+```
+1. Mở app, đợi ổn định 5 giây
+2. Mở bottom sheet → Tab "Controls"
+3. Đảm bảo "Occlusion Culling" đang TẮT (☐)
+4. Mở tab "Metrics", ghi lại:
+┌──────────────────────┬──────────┐
+│ Chỉ số              │ Giá trị  │
+├──────────────────────┼──────────┤
+│ Objects Rendered     │ _____    │
+│ Objects Culled       │ _____    │
+│ Overdraw Ratio       │ _____    │
+│ FPS                  │ _____    │
+└──────────────────────┴──────────┘
+```
+
+**Bước 2: Bật Occlusion Culling**
+```
+1. Quay lại tab "Controls"
+2. Bật "Occlusion Culling" (☑)
+3. Đợi 3-5 giây
+```
+
+**Bước 3: Ghi lại chỉ số sau khi BẬT**
+```
+1. Mở tab "Metrics", ghi lại:
+┌──────────────────────┬──────────┬──────────┐
+│ Chỉ số              │ TRƯỚC    │ SAU      │
+├──────────────────────┼──────────┼──────────┤
+│ Objects Rendered     │ _____    │ _____   │
+│ Objects Culled       │ _____    │ _____   │
+│ Overdraw Ratio       │ _____    │ _____   │
+│ FPS                  │ _____    │ _____   │
+└──────────────────────┴──────────┴──────────┘
+```
+
+#### So sánh và phân tích:
+
+**Kết quả mong đợi khi BẬT Occlusion Culling:**
+- ✅ Objects Rendered **GIẢM** (objects bị che không render)
+- ✅ Objects Culled **TĂNG** (từ 0 lên > 0)
+- ✅ Overdraw Ratio **GIẢM** (ví dụ: 1.5 → 1.2)
+- ✅ FPS **TĂNG** nhẹ
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Objects Culled tăng (từ 0 lên > 0)
+- Overdraw Ratio giảm
+- FPS tăng nhẹ
+
+#### ❌ KẾT QUẢ SAI:
+- Objects Culled vẫn = 0
+- Overdraw Ratio không thay đổi
+
+---
+
+### 📋 TEST 7: LEVEL OF DETAIL (LOD)
+
+#### Mục đích: Kiểm tra tối ưu hóa LOD hoạt động đúng
+
+#### Bước test:
+
+**Bước 1: Ghi lại chỉ số ban đầu (LOD BẬT)**
+```
+1. Mở app, đợi ổn định 5 giây
+2. Mở bottom sheet → Tab "Controls"
+3. Đảm bảo "Level of Detail (LOD)" đang BẬT (☑)
+4. Mở tab "Metrics", ghi lại:
+┌──────────────────────┬──────────┐
+│ Chỉ số              │ Giá trị  │
+├──────────────────────┼──────────┤
+│ Triangles            │ _____    │
+│ FPS                  │ _____    │
+│ Avg Frame Time (ms)  │ _____    │
+└──────────────────────┴──────────┘
+```
+
+**Bước 2: Tắt LOD**
+```
+1. Quay lại tab "Controls"
+2. Tắt "Level of Detail (LOD)" (☐)
+3. Đợi 3-5 giây
+```
+
+**Bước 3: Ghi lại chỉ số sau khi TẮT**
+```
+1. Mở tab "Metrics", ghi lại:
+┌──────────────────────┬──────────┬──────────┐
+│ Chỉ số              │ TRƯỚC    │ SAU      │
+├──────────────────────┼──────────┼──────────┤
+│ Triangles            │ _____    │ _____   │
+│ FPS                  │ _____    │ _____   │
+│ Avg Frame Time (ms)  │ _____    │ _____   │
+└──────────────────────┴──────────┴──────────┘
+```
+
+**Bước 4: Bật lại LOD**
+```
+1. Quay lại tab "Controls"
+2. Bật "Level of Detail (LOD)" (☑)
+3. Đợi 3-5 giây
+4. Quan sát Triangles giảm về gần giá trị ban đầu
+```
+
+#### So sánh và phân tích:
+
+**Kết quả mong đợi khi TẮT LOD:**
+- ✅ Triangles **TĂNG** (ví dụ: 2000 → 3000)
+- ✅ FPS **GIẢM** nhẹ (ví dụ: 80 → 75 FPS)
+- ✅ Avg Frame Time **TĂNG** (ví dụ: 12 ms → 13 ms)
+
+**Kết quả mong đợi khi BẬT lại:**
+- ✅ Triangles **GIẢM** về gần giá trị ban đầu
+- ✅ FPS **TĂNG** về gần giá trị ban đầu
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Triangles tăng ít nhất 30-50% khi tắt LOD
+- FPS giảm nhẹ khi tắt LOD
+- Triangles quay về gần ban đầu khi bật lại
+
+#### ❌ KẾT QUẢ SAI:
+- Triangles không thay đổi
+- FPS không thay đổi
+
+---
+
+### 📋 TEST 8: MIPMAPS
+
+#### Mục đích: Kiểm tra tối ưu hóa Mipmaps hoạt động đúng
+
+#### Bước test:
+
+**Bước 1: Ghi lại chỉ số ban đầu (Mipmaps BẬT)**
+```
+1. Mở app, đợi ổn định 5 giây
+2. Mở bottom sheet → Tab "Controls"
+3. Đảm bảo "Mipmaps" đang BẬT (☑)
+4. Ghi lại:
+┌──────────────────────┬──────────┐
+│ Chỉ số              │ Giá trị  │
+├──────────────────────┼──────────┤
+│ FPS                  │ _____    │
+│ Frame Time (ms)      │ _____    │
+│ Texture Binds        │ _____    │
+└──────────────────────┴──────────┘
+```
+
+**Bước 2: Tắt Mipmaps**
+```
+1. Quay lại tab "Controls"
+2. Tắt "Mipmaps" (☐)
+3. Đợi 3-5 giây
+```
+
+**Bước 3: Ghi lại chỉ số sau khi TẮT**
+```
+1. Ghi lại:
+┌──────────────────────┬──────────┬──────────┐
+│ Chỉ số              │ TRƯỚC    │ SAU      │
+├──────────────────────┼──────────┼──────────┤
+│ FPS                  │ _____    │ _____   │
+│ Frame Time (ms)      │ _____    │ _____   │
+│ Texture Binds        │ _____    │ _____   │
+└──────────────────────┴──────────┴──────────┘
+```
+
+#### So sánh và phân tích:
+
+**Kết quả mong đợi khi TẮT Mipmaps:**
+- ✅ FPS **GIẢM** nhẹ (ví dụ: 80 → 78 FPS)
+- ✅ Frame Time **TĂNG** nhẹ (ví dụ: 12 ms → 12.5 ms)
+- ⚠️ Texture Binds có thể không thay đổi nhiều
+
+**Lưu ý:** Mipmaps ảnh hưởng chủ yếu khi texture ở xa, nên sự khác biệt có thể nhỏ.
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- FPS giảm nhẹ khi tắt (2-5%)
+- Frame Time tăng nhẹ
+
+#### ❌ KẾT QUẢ SAI:
+- Không có thay đổi gì
+
+---
+
+### 📋 TEST 9: ETC1 TEXTURE COMPRESSION
+
+#### Mục đích: Kiểm tra tối ưu hóa ETC1 Compression hoạt động đúng
+
+#### Bước test:
+
+**Bước 1: Ghi lại chỉ số ban đầu (ETC1 TẮT)**
+```
+1. Mở app, đợi ổn định 5 giây
+2. Mở bottom sheet → Tab "Controls"
+3. Đảm bảo "ETC1 Texture Compression" đang TẮT (☐)
+4. Mở tab "Metrics", ghi lại:
+┌──────────────────────┬──────────┐
+│ Chỉ số              │ Giá trị  │
+├──────────────────────┼──────────┤
+│ FPS                  │ _____    │
+│ Frame Time (ms)      │ _____    │
+│ Texture Memory (nếu có)│ _____    │
+└──────────────────────┴──────────┘
+```
+
+**Bước 2: Bật ETC1 Compression**
+```
+1. Quay lại tab "Controls"
+2. Bật "ETC1 Texture Compression" (☑)
+3. Đợi 3-5 giây (có thể lâu hơn vì cần nén texture)
+```
+
+**Bước 3: Ghi lại chỉ số sau khi BẬT**
+```
+1. Ghi lại:
+┌──────────────────────┬──────────┬──────────┐
+│ Chỉ số              │ TRƯỚC    │ SAU      │
+├──────────────────────┼──────────┼──────────┤
+│ FPS                  │ _____    │ _____   │
+│ Frame Time (ms)      │ _____    │ _____   │
+│ Texture Memory       │ _____    │ _____   │
+└──────────────────────┴──────────┴──────────┘
+```
+
+#### So sánh và phân tích:
+
+**⚠️ LƯU Ý QUAN TRỌNG:**
+- **ETC1 Compression hiện tại CHƯA được implement đầy đủ** - chỉ tính toán memory estimate
+- Texture không được reload khi toggle ETC1, nên **KHÔNG có sự khác biệt thực tế** khi bật/tắt
+- Các chỉ số dưới đây là **kỳ vọng** khi ETC1 được implement đầy đủ
+
+**Các chỉ số bị ảnh hưởng khi ETC1 được implement đầy đủ:**
+
+1. **Texture Memory (Ước tính - không hiển thị trong UI hiện tại):**
+   - **TRƯỚC (ETC1 TẮT):** ~4 bytes/pixel (RGBA8888)
+   - **SAU (ETC1 BẬT):** ~0.5 bytes/pixel (ETC1)
+   - **Giảm:** ~87.5% (từ 1.0 MB xuống ~0.17 MB cho texture 512x512)
+
+2. **FPS:**
+   - **TRƯỚC:** Có thể thấp hơn do memory bandwidth cao
+   - **SAU:** **TĂNG nhẹ** (2-5 FPS) do giảm memory bandwidth
+   - **Lý do:** Texture nhỏ hơn → ít data transfer → GPU xử lý nhanh hơn
+
+3. **Frame Time (ms):**
+   - **TRƯỚC:** Có thể cao hơn
+   - **SAU:** **GIẢM nhẹ** (0.1-0.3ms) do giảm texture loading time
+
+4. **Texture Binds:**
+   - **KHÔNG THAY ĐỔI** (vẫn bind cùng số lượng texture)
+
+5. **Các chỉ số khác:**
+   - **Triangles:** Không thay đổi
+   - **Draw Calls:** Không thay đổi
+   - **Shader Switches:** Không thay đổi
+   - **Objects Rendered:** Không thay đổi
+
+**Kết quả mong đợi khi ETC1 được implement đầy đủ:**
+- ✅ Texture Memory **GIẢM** ~87.5% (từ 4 bytes/pixel xuống 0.5 bytes/pixel)
+- ✅ FPS **TĂNG** nhẹ (2-5 FPS) do giảm memory bandwidth
+- ✅ Frame Time **GIẢM** nhẹ (0.1-0.3ms)
+- ⚠️ Visual Quality có thể **GIẢM nhẹ** (compression artifacts)
+
+#### ✅ KẾT QUẢ ĐÚNG (khi implement đầy đủ):
+- Texture Memory giảm đáng kể (~87.5%)
+- FPS tăng nhẹ (2-5 FPS)
+- Frame Time giảm nhẹ
+
+#### ❌ KẾT QUẢ SAI:
+- Texture Memory không thay đổi
+- FPS giảm (không mong đợi)
+
+#### 📝 LƯU Ý HIỆN TẠI:
+- **Vì ETC1 chưa được implement đầy đủ, khi bật/tắt ETC1 bạn sẽ KHÔNG thấy sự khác biệt trong metrics**
+- Texture Memory không được hiển thị trong UI Metrics Panel
+- Để thấy sự khác biệt, cần implement đầy đủ ETC1 compression và reload texture khi toggle
+
+---
+
+### 📋 TEST 10: TEXTURE ATLASING
+
+#### Mục đích: Kiểm tra tối ưu hóa Texture Atlasing hoạt động đúng
+
+#### Bước test:
+
+**Bước 1: Ghi lại chỉ số ban đầu (Texture Atlasing TẮT)**
+```
+1. Mở app, đợi ổn định 5 giây
+2. Mở bottom sheet → Tab "Controls"
+3. Đảm bảo "Texture Atlasing" đang TẮT (☐)
+4. Mở tab "Metrics", ghi lại:
+┌──────────────────────┬──────────┐
+│ Chỉ số              │ Giá trị  │
+├──────────────────────┼──────────┤
+│ Texture Binds        │ _____    │
+│ Shader Switches      │ _____    │
+│ FPS                  │ _____    │
+└──────────────────────┴──────────┘
+```
+
+**Bước 2: Bật Texture Atlasing**
+```
+1. Quay lại tab "Controls"
+2. Bật "Texture Atlasing" (☑)
+3. Đợi 3-5 giây
+```
+
+**Bước 3: Ghi lại chỉ số sau khi BẬT**
+```
+1. Ghi lại:
+┌──────────────────────┬──────────┬──────────┐
+│ Chỉ số              │ TRƯỚC    │ SAU      │
+├──────────────────────┼──────────┼──────────┤
+│ Texture Binds        │ _____    │ _____   │
+│ Shader Switches      │ _____    │ _____   │
+│ FPS                  │ _____    │ _____   │
+└──────────────────────┴──────────┴──────────┘
+```
+
+#### So sánh và phân tích:
+
+**Kết quả mong đợi khi BẬT Texture Atlasing:**
+- ✅ Texture Binds **GIẢM** (ví dụ: 10 → 1)
+- ✅ Shader Switches **GIẢM** (do ít switch texture hơn)
+- ✅ FPS **TĂNG** nhẹ
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Texture Binds giảm đáng kể
+- FPS tăng nhẹ
+
+#### ❌ KẾT QUẢ SAI:
+- Texture Binds không thay đổi
+
+---
+
+### 📋 TEST 11: INSTANCED RENDERING
+
+#### Mục đích: Kiểm tra tối ưu hóa Instanced Rendering hoạt động đúng
+
+#### Bước test:
+
+**Bước 1: Ghi lại chỉ số ban đầu (Instanced Rendering TẮT)**
+```
+1. Mở app, đợi ổn định 5 giây
+2. Mở bottom sheet → Tab "Controls"
+3. Đảm bảo "Instanced Rendering" đang TẮT (☐)
+4. Ghi lại:
+┌──────────────────────┬──────────┐
+│ Chỉ số              │ Giá trị  │
+├──────────────────────┼──────────┤
+│ Draw Calls           │ _____    │
+│ FPS                  │ _____    │
+│ Frame Time (ms)      │ _____    │
+└──────────────────────┴──────────┘
+```
+
+**Bước 2: Bật Instanced Rendering**
+```
+1. Quay lại tab "Controls"
+2. Bật "Instanced Rendering" (☑)
+3. Đợi 3-5 giây
+```
+
+**Bước 3: Ghi lại chỉ số sau khi BẬT**
+```
+1. Ghi lại:
+┌──────────────────────┬──────────┬──────────┐
+│ Chỉ số              │ TRƯỚC    │ SAU      │
+├──────────────────────┼──────────┼──────────┤
+│ Draw Calls           │ _____    │ _____   │
+│ FPS                  │ _____    │ _____   │
+│ Frame Time (ms)      │ _____    │ _____   │
+└──────────────────────┴──────────┴──────────┘
+```
+
+#### So sánh và phân tích:
+
+**Kết quả mong đợi khi BẬT Instanced Rendering:**
+- ✅ Draw Calls **GIẢM** đáng kể (ví dụ: 64 → 10)
+- ✅ FPS **TĂNG** (ví dụ: 75 → 85 FPS)
+- ✅ Frame Time **GIẢM**
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Draw Calls giảm ít nhất 50%
+- FPS tăng đáng kể
+
+#### ❌ KẾT QUẢ SAI:
+- Draw Calls không thay đổi
+- FPS không thay đổi
+
+---
+
+### 📋 TEST 12: DEPTH PRE-PASS
+
+#### Mục đích: Kiểm tra tối ưu hóa Depth Pre-Pass hoạt động đúng
+
+#### Bước test:
+
+**Bước 1: Ghi lại chỉ số ban đầu (Depth Pre-Pass TẮT)**
+```
+1. Mở app, đợi ổn định 5 giây
+2. Mở bottom sheet → Tab "Controls"
+3. Đảm bảo "Depth Pre-Pass" đang TẮT (☐)
+4. Mở tab "Metrics", ghi lại:
+┌──────────────────────┬──────────┐
+│ Chỉ số              │ Giá trị  │
+├──────────────────────┼──────────┤
+│ Overdraw Ratio       │ _____    │
+│ FPS                  │ _____    │
+│ Frame Time (ms)      │ _____    │
+└──────────────────────┴──────────┘
+```
+
+**Bước 2: Bật Depth Pre-Pass**
+```
+1. Quay lại tab "Controls"
+2. Bật "Depth Pre-Pass" (☑)
+3. Đợi 3-5 giây
+```
+
+**Bước 3: Ghi lại chỉ số sau khi BẬT**
+```
+1. Ghi lại:
+┌──────────────────────┬──────────┬──────────┐
+│ Chỉ số              │ TRƯỚC    │ SAU      │
+├──────────────────────┼──────────┼──────────┤
+│ Overdraw Ratio       │ _____    │ _____   │
+│ FPS                  │ _____    │ _____   │
+│ Frame Time (ms)      │ _____    │ _____   │
+└──────────────────────┴──────────┴──────────┘
+```
+
+#### So sánh và phân tích:
+
+**Kết quả mong đợi khi BẬT Depth Pre-Pass:**
+- ✅ Overdraw Ratio **GIẢM** (ví dụ: 1.5 → 1.2)
+- ✅ FPS **TĂNG** nhẹ
+- ✅ Frame Time **GIẢM** nhẹ
+
+**Lưu ý:** Depth Pre-Pass có thể tăng Draw Calls (do render 2 lần), nhưng giảm overdraw.
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Overdraw Ratio giảm
+- FPS tăng nhẹ
+
+#### ❌ KẾT QUẢ SAI:
+- Overdraw Ratio không thay đổi
+
+---
+
+### 📋 TEST 13: SHOW OVERDRAW HEATMAP
+
+#### Mục đích: Kiểm tra tính năng hiển thị Overdraw Heatmap
+
+#### Bước test:
+
+**Bước 1: Kiểm tra scene bình thường**
+```
+1. Mở app, đợi ổn định 5 giây
+2. Quan sát scene 3D:
+   ✅ Background xanh đậm
+   ✅ Cubes có pattern đen trắng
+```
+
+**Bước 2: Bật Overdraw Heatmap**
+```
+1. Mở bottom sheet → Tab "Controls"
+2. Bật "Show Overdraw Heatmap" (☑)
+3. Đợi 2-3 giây
+```
+
+**Bước 3: Kiểm tra hiển thị heatmap**
+```
+1. Quan sát scene 3D:
+   ✅ Màu sắc thay đổi (không còn pattern đen trắng)
+   ✅ Các vùng có màu khác nhau:
+      - Xanh lá = ít overdraw (tốt)
+      - Vàng = overdraw trung bình
+      - Đỏ = overdraw nhiều (xấu)
+   ✅ Có thể thấy các vùng đỏ ở nơi objects chồng lên nhau
+```
+
+**Bước 4: Tắt Overdraw Heatmap**
+```
+1. Tắt "Show Overdraw Heatmap" (☐)
+2. Quan sát scene quay về bình thường
+```
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Scene thay đổi màu sắc khi bật
+- Thấy các vùng màu khác nhau (xanh, vàng, đỏ)
+- Scene quay về bình thường khi tắt
+
+#### ❌ KẾT QUẢ SAI:
+- Scene không thay đổi màu
+- Vẫn thấy pattern đen trắng
+
+---
+
+### 📋 TEST 14: TAB "METRICS" - TẤT CẢ CHỈ SỐ
+
+#### Mục đích: Kiểm tra tất cả metrics hiển thị và cập nhật đúng
+
+#### Bước test:
+
+**Bước 1: Mở tab "Metrics"**
+```
+1. Mở bottom sheet
+2. Click tab "Metrics"
+3. Quan sát tất cả các metrics
+```
+
+**Bước 2: Ghi lại tất cả chỉ số**
+```
+Ghi vào bảng:
+┌──────────────────────────┬──────────┐
+│ Chỉ số                  │ Giá trị  │
+├──────────────────────────┼──────────┤
+│ Avg Frame Time (ms)      │ _____    │
+│ Frame Variance           │ _____    │
+│ Jank Count               │ _____    │
+│ Triangles                │ _____    │
+│ Texture Binds            │ _____    │
+│ Shader Switches          │ _____    │
+│ Overdraw Ratio           │ _____    │
+│ Objects Rendered         │ _____    │
+│ Objects Culled           │ _____    │
+└──────────────────────────┴──────────┘
+```
+
+**Bước 3: Kiểm tra cập nhật real-time**
+```
+1. Quan sát tab "Metrics" trong 10 giây
+2. Kiểm tra:
+   ✅ Avg Frame Time thay đổi liên tục
+   ✅ Frame Variance thay đổi
+   ✅ Jank Count tăng dần (nếu có jank)
+   ✅ Triangles có thể thay đổi
+   ✅ Objects Rendered có thể thay đổi
+```
+
+**Bước 4: Kiểm tra giá trị hợp lệ**
+```
+✅ Avg Frame Time > 0 và < 100 ms
+✅ Frame Variance > 0
+✅ Jank Count >= 0
+✅ Triangles > 0
+✅ Texture Binds >= 0
+✅ Shader Switches >= 0
+✅ Overdraw Ratio >= 1.0
+✅ Objects Rendered > 0
+✅ Objects Culled >= 0
+```
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Tất cả 9 metrics hiển thị
+- Các số thay đổi liên tục (trừ Jank Count chỉ tăng)
+- Giá trị nằm trong khoảng hợp lệ
+
+#### ❌ KẾT QUẢ SAI:
+- Thiếu metrics
+- Các số đứng yên, không cập nhật
+- Giá trị không hợp lệ (ví dụ: Triangles = 0)
+
+---
+
+### 📋 TEST 15: TAB "CHARTS" - FPS OVER TIME CHART
+
+#### Mục đích: Kiểm tra FPS chart hiển thị và cập nhật đúng
+
+#### Bước test:
+
+**Bước 1: Mở tab "Charts"**
+```
+1. Mở bottom sheet
+2. Click tab "Charts"
+3. Quan sát FPS Over Time chart (biểu đồ đường)
+```
+
+**Bước 2: Kiểm tra hiển thị ban đầu**
+```
+1. Quan sát chart:
+   ✅ Thấy trục X (thời gian/số frame)
+   ✅ Thấy trục Y (FPS, 0-120)
+   ✅ Thấy đường xanh (FPS line)
+   ✅ Đường có dữ liệu (không trống)
+```
+
+**Bước 3: Kiểm tra cập nhật real-time**
+```
+1. Quan sát chart trong 15 giây
+2. Kiểm tra:
+   ✅ Đường xanh di chuyển sang phải (thời gian trôi)
+   ✅ Đường thay đổi lên xuống (FPS thay đổi)
+   ✅ Chart tự động scroll sang phải
+```
+
+**Bước 4: Test tương tác**
+```
+1. Pinch to zoom: Phóng to/thu nhỏ chart
+   ✅ Chart zoom được
+2. Drag: Kéo chart sang trái/phải
+   ✅ Chart di chuyển được
+3. Double tap: Reset zoom
+   ✅ Chart quay về zoom ban đầu
+```
+
+**Bước 5: Test thay đổi khi toggle optimization**
+```
+1. Ghi lại FPS trung bình từ chart (quan sát đường)
+2. Mở tab "Controls"
+3. Tắt "Back-face Culling"
+4. Quay lại tab "Charts"
+5. Quan sát:
+   ✅ Đường FPS giảm xuống
+   ✅ Chart cập nhật ngay lập tức
+```
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Chart hiển thị đường xanh với dữ liệu
+- Chart cập nhật liên tục
+- Có thể zoom/drag/double tap
+- Chart phản ánh thay đổi khi toggle optimization
+
+#### ❌ KẾT QUẢ SAI:
+- Chart trống/trắng
+- Đường không di chuyển
+- Không thể tương tác
+- Chart không cập nhật
+
+---
+
+### 📋 TEST 16: TAB "CHARTS" - PERFORMANCE COMPARISON CHART
+
+#### Mục đích: Kiểm tra Comparison chart hiển thị đúng
+
+#### Bước test:
+
+**Bước 1: Kiểm tra hiển thị**
+```
+1. Mở tab "Charts"
+2. Scroll xuống (nếu cần) để thấy Performance Comparison chart
+3. Quan sát:
+   ✅ Thấy biểu đồ cột (bar chart)
+   ✅ Thấy 3 cột: FPS, Draw Calls, Triangles/100
+   ✅ Các cột có giá trị > 0
+```
+
+**Bước 2: Ghi lại giá trị các cột**
+```
+Ghi vào bảng:
+┌──────────────────────┬──────────┐
+│ Metric               │ Giá trị  │
+├──────────────────────┼──────────┤
+│ FPS                  │ _____    │
+│ Draw Calls           │ _____    │
+│ Triangles/100        │ _____    │
+└──────────────────────┴──────────┘
+```
+
+**Bước 3: Kiểm tra cập nhật**
+```
+1. Quan sát chart trong 10 giây
+2. Kiểm tra:
+   ✅ Các cột thay đổi giá trị
+   ✅ Chart cập nhật real-time
+```
+
+**Bước 4: So sánh với HUD**
+```
+1. So sánh FPS từ chart với FPS trong HUD:
+   ✅ Giá trị gần giống nhau (có thể khác nhẹ do trung bình)
+2. So sánh Draw Calls:
+   ✅ Giá trị gần giống nhau
+```
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Chart hiển thị 3 cột với giá trị > 0
+- Chart cập nhật liên tục
+- Giá trị khớp với HUD (gần đúng)
+
+#### ❌ KẾT QUẢ SAI:
+- Chart trống
+- Các cột = 0
+- Chart không cập nhật
+
+---
+
+### 📋 TEST 17: BENCHMARK SUITE - TỔNG QUAN
+
+#### Mục đích: Kiểm tra benchmark suite chạy được và có kết quả
+
+#### Bước test:
+
+**Bước 1: Chuẩn bị**
+```
+1. Mở app, đợi ổn định 10 giây
+2. Mở bottom sheet → Tab "Controls"
+3. Scroll xuống cuối
+4. Tìm nút "Run Benchmark Suite"
+```
+
+**Bước 2: Chạy benchmark**
+```
+1. Nhấn nút "Run Benchmark Suite"
+2. Quan sát:
+   ✅ Toast message hiện: "Running benchmark suite..."
+   ✅ App không crash
+   ✅ Scene vẫn render (có thể thay đổi)
+```
+
+**Bước 3: Đợi benchmark hoàn thành**
+```
+1. Đợi 30-60 giây (tùy thiết bị)
+2. Quan sát:
+   ✅ App không crash
+   ✅ Có thể thấy scene thay đổi (do các test khác nhau)
+```
+
+**Bước 4: Kiểm tra màn hình kết quả**
+```
+1. Sau khi benchmark xong, app tự động mở màn hình kết quả
+2. Kiểm tra:
+   ✅ Thấy "Overall Score" (số từ 0-100)
+   ✅ Thấy danh sách 6 tests:
+      - Triangle Throughput Test
+      - Texture Fill Rate Test
+      - Shader Complexity Test
+      - Culling Effectiveness Test
+      - Overdraw Test
+      - Memory Bandwidth Test
+   ✅ Mỗi test có:
+      - Tên test
+      - FPS
+      - Frame Time
+      - Score
+```
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Toast message hiện
+- Benchmark chạy không crash
+- Màn hình kết quả tự động mở
+- Thấy Overall Score và 6 test results
+
+#### ❌ KẾT QUẢ SAI:
+- App crash khi chạy
+- Không có màn hình kết quả
+- Thiếu test results
+
+---
+
+### 📋 TEST 18: BENCHMARK - TRIANGLE THROUGHPUT TEST
+
+#### Mục đích: Kiểm tra test đo khả năng render triangles
+
+#### Bước test:
+
+**Bước 1: Chạy benchmark và xem kết quả**
+```
+1. Chạy "Run Benchmark Suite" (xem TEST 17)
+2. Đợi benchmark xong
+3. Tìm "Triangle Throughput Test" trong danh sách
+```
+
+**Bước 2: Ghi lại kết quả**
+```
+Ghi vào bảng:
+┌──────────────────────┬──────────┐
+│ Metric               │ Giá trị  │
+├──────────────────────┼──────────┤
+│ FPS                  │ _____    │
+│ Frame Time (ms)      │ _____    │
+│ Score                │ _____    │
+└──────────────────────┴──────────┘
+```
+
+**Bước 3: Phân tích kết quả**
+```
+1. Kiểm tra FPS:
+   ✅ FPS > 30 (tốt nhất > 60)
+   ✅ FPS hợp lệ (không phải 0 hoặc âm)
+2. Kiểm tra Frame Time:
+   ✅ Frame Time < 33 ms (tốt nhất < 16.67 ms)
+3. Kiểm tra Score:
+   ✅ Score từ 0-100
+   ✅ Score càng cao càng tốt
+```
+
+**Bước 4: So sánh với các test khác**
+```
+1. So sánh FPS của test này với các test khác:
+   - Triangle Throughput thường có FPS thấp hơn (do nhiều triangles)
+   - Nếu FPS quá thấp (< 20) → GPU yếu hoặc quá nhiều triangles
+```
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Có kết quả FPS, Frame Time, Score
+- Giá trị hợp lệ
+- FPS phản ánh khả năng render triangles
+
+#### ❌ KẾT QUẢ SAI:
+- Không có kết quả
+- FPS = 0
+- Score = 0
+
+---
+
+### 📋 TEST 19: BENCHMARK - TEXTURE FILL RATE TEST
+
+#### Mục đích: Kiểm tra test đo khả năng render texture
+
+#### Bước test:
+
+**Bước 1: Xem kết quả**
+```
+1. Sau khi chạy benchmark, tìm "Texture Fill Rate Test"
+2. Ghi lại kết quả:
+┌──────────────────────┬──────────┐
+│ Metric               │ Giá trị  │
+├──────────────────────┼──────────┤
+│ FPS                  │ _____    │
+│ Frame Time (ms)      │ _____    │
+│ Score                │ _____    │
+└──────────────────────┴──────────┘
+```
+
+**Bước 2: Phân tích**
+```
+1. Texture Fill Rate test đo khả năng render texture
+2. FPS thường cao hơn Triangle Throughput (do ít triangles hơn)
+3. Kiểm tra:
+   ✅ FPS > 30
+   ✅ Frame Time < 33 ms
+   ✅ Score hợp lệ
+```
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Có kết quả đầy đủ
+- FPS hợp lệ
+- Score hợp lệ
+
+---
+
+### 📋 TEST 20: BENCHMARK - SHADER COMPLEXITY TEST
+
+#### Mục đích: Kiểm tra test so sánh simple vs complex shader
+
+#### Bước test:
+
+**Bước 1: Xem kết quả**
+```
+1. Tìm "Shader Complexity Test" trong kết quả
+2. Ghi lại:
+┌──────────────────────┬──────────┐
+│ Metric               │ Giá trị  │
+├──────────────────────┼──────────┤
+│ FPS                  │ _____    │
+│ Frame Time (ms)      │ _____    │
+│ Score                │ _____    │
+└──────────────────────┴──────────┘
+```
+
+**Bước 2: Phân tích**
+```
+1. Test này so sánh simple shader vs complex shader
+2. FPS thường thấp hơn do complex shader tốn GPU hơn
+3. Kiểm tra:
+   ✅ Có kết quả
+   ✅ FPS hợp lệ
+   ✅ Score hợp lệ
+```
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Có kết quả
+- FPS phản ánh độ phức tạp của shader
+
+---
+
+### 📋 TEST 21: BENCHMARK - CULLING EFFECTIVENESS TEST
+
+#### Mục đích: Kiểm tra test đo hiệu quả của culling
+
+#### Bước test:
+
+**Bước 1: Xem kết quả**
+```
+1. Tìm "Culling Effectiveness Test"
+2. Ghi lại:
+┌──────────────────────┬──────────┐
+│ Metric               │ Giá trị  │
+├──────────────────────┼──────────┤
+│ FPS                  │ _____    │
+│ Frame Time (ms)      │ _____    │
+│ Score                │ _____    │
+└──────────────────────┴──────────┘
+```
+
+**Bước 2: Phân tích**
+```
+1. Test này so sánh với/không có culling
+2. FPS khi có culling thường cao hơn
+3. Kiểm tra:
+   ✅ Có kết quả
+   ✅ FPS hợp lệ
+   ✅ Score hợp lệ
+```
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Có kết quả
+- FPS phản ánh hiệu quả của culling
+
+---
+
+### 📋 TEST 22: BENCHMARK - OVERDRAW TEST
+
+#### Mục đích: Kiểm tra test đo mức độ overdraw
+
+#### Bước test:
+
+**Bước 1: Xem kết quả**
+```
+1. Tìm "Overdraw Test"
+2. Ghi lại:
+┌──────────────────────┬──────────┐
+│ Metric               │ Giá trị  │
+├──────────────────────┼──────────┤
+│ FPS                  │ _____    │
+│ Frame Time (ms)      │ _____    │
+│ Score                │ _____    │
+└──────────────────────┴──────────┘
+```
+
+**Bước 2: Phân tích**
+```
+1. Test này đo overdraw ratio
+2. Overdraw cao → FPS thấp
+3. Kiểm tra:
+   ✅ Có kết quả
+   ✅ FPS hợp lệ
+```
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Có kết quả
+- FPS phản ánh mức độ overdraw
+
+---
+
+### 📋 TEST 23: BENCHMARK - MEMORY BANDWIDTH TEST
+
+#### Mục đích: Kiểm tra test đo memory bandwidth
+
+#### Bước test:
+
+**Bước 1: Xem kết quả**
+```
+1. Tìm "Memory Bandwidth Test"
+2. Ghi lại:
+┌──────────────────────┬──────────┐
+│ Metric               │ Giá trị  │
+├──────────────────────┼──────────┤
+│ FPS                  │ _____    │
+│ Frame Time (ms)      │ _____    │
+│ Score                │ _____    │
+└──────────────────────┴──────────┘
+```
+
+**Bước 2: Phân tích**
+```
+1. Test này đo bandwidth khi switch textures
+2. FPS có thể thấp do tốn bandwidth
+3. Kiểm tra:
+   ✅ Có kết quả
+   ✅ FPS hợp lệ
+```
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Có kết quả
+- FPS hợp lệ
+
+---
+
+### 📋 TEST 24: OVERALL SCORE VÀ SO SÁNH
+
+#### Mục đích: Phân tích Overall Score và so sánh các test
+
+#### Bước test:
+
+**Bước 1: Ghi lại Overall Score**
+```
+1. Sau khi chạy benchmark, xem "Overall Score"
+2. Ghi lại:
+┌──────────────────────┬──────────┐
+│ Overall Score        │ _____    │
+└──────────────────────┴──────────┘
+```
+
+**Bước 2: Ghi lại tất cả test results**
+```
+Ghi vào bảng:
+┌──────────────────────────────┬──────────┬──────────────┬──────────┐
+│ Test Name                    │ FPS     │ Frame Time   │ Score    │
+├──────────────────────────────┼──────────┼──────────────┼──────────┤
+│ Triangle Throughput          │ _____   │ _____ ms     │ _____    │
+│ Texture Fill Rate            │ _____   │ _____ ms     │ _____    │
+│ Shader Complexity            │ _____   │ _____ ms     │ _____    │
+│ Culling Effectiveness        │ _____   │ _____ ms     │ _____    │
+│ Overdraw                     │ _____   │ _____ ms     │ _____    │
+│ Memory Bandwidth             │ _____   │ _____ ms     │ _____    │
+└──────────────────────────────┴──────────┴──────────────┴──────────┘
+```
+
+**Bước 3: Phân tích và so sánh**
+```
+1. So sánh FPS của các test:
+   - Test nào có FPS cao nhất? → GPU mạnh ở lĩnh vực đó
+   - Test nào có FPS thấp nhất? → GPU yếu ở lĩnh vực đó
+2. Kiểm tra Overall Score:
+   ✅ Score từ 0-100
+   ✅ Score > 50 = GPU khá
+   ✅ Score > 70 = GPU tốt
+   ✅ Score > 85 = GPU rất tốt
+3. So sánh với lần chạy trước:
+   - Nếu thay đổi optimizations → Score thay đổi
+   - Score cao hơn = tối ưu hóa tốt hơn
+```
+
+#### ✅ KẾT QUẢ ĐÚNG:
+- Overall Score hợp lệ (0-100)
+- Tất cả 6 tests có kết quả
+- Có thể so sánh giữa các test
+
+---
+
+## 📊 BẢNG TỔNG HỢP TEST RESULTS
+
+Sử dụng bảng này để ghi lại tất cả kết quả test:
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    BẢNG TỔNG HỢP TEST RESULTS                       │
+├─────────────────────────────────────────────────────────────────────┤
+│ TEST 1: HUD Overlay                                                 │
+│   FPS: _____ | Frame: _____ ms | Draws: _____                       │
+│                                                                     │
+│ TEST 4: Back-face Culling                                          │
+│   TRƯỚC: FPS _____ | Triangles _____                               │
+│   SAU (TẮT): FPS _____ | Triangles _____                           │
+│                                                                     │
+│ TEST 5: Frustum Culling                                            │
+│   TRƯỚC: Objects Rendered _____ | Objects Culled _____              │
+│   SAU (BẬT): Objects Rendered _____ | Objects Culled _____          │
+│                                                                     │
+│ TEST 7: LOD                                                        │
+│   TRƯỚC: Triangles _____ | FPS _____                               │
+│   SAU (TẮT): Triangles _____ | FPS _____                            │
+│                                                                     │
+│ ... (ghi tiếp các test khác)                                       │
+│                                                                     │
+│ BENCHMARK RESULTS:                                                 │
+│   Overall Score: _____                                              │
+│   Triangle Throughput: FPS _____ | Score _____                     │
+│   Texture Fill Rate: FPS _____ | Score _____                       │
+│   ... (ghi tiếp)                                                   │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## ✅ CHECKLIST HOÀN THÀNH TẤT CẢ TESTS
+
+Sử dụng checklist này để theo dõi tiến độ:
+
+- [ ] TEST 1: HUD Overlay
+- [ ] TEST 2: Scene 3D
+- [ ] TEST 3: FAB Button và Bottom Sheet
+- [ ] TEST 4: Back-face Culling
+- [ ] TEST 5: Frustum Culling
+- [ ] TEST 6: Occlusion Culling
+- [ ] TEST 7: Level of Detail (LOD)
+- [ ] TEST 8: Mipmaps
+- [ ] TEST 9: ETC1 Texture Compression
+- [ ] TEST 10: Texture Atlasing
+- [ ] TEST 11: Instanced Rendering
+- [ ] TEST 12: Depth Pre-Pass
+- [ ] TEST 13: Show Overdraw Heatmap
+- [ ] TEST 14: Tab "Metrics" - Tất cả chỉ số
+- [ ] TEST 15: Tab "Charts" - FPS Over Time
+- [ ] TEST 16: Tab "Charts" - Performance Comparison
+- [ ] TEST 17: Benchmark Suite - Tổng quan
+- [ ] TEST 18: Benchmark - Triangle Throughput
+- [ ] TEST 19: Benchmark - Texture Fill Rate
+- [ ] TEST 20: Benchmark - Shader Complexity
+- [ ] TEST 21: Benchmark - Culling Effectiveness
+- [ ] TEST 22: Benchmark - Overdraw
+- [ ] TEST 23: Benchmark - Memory Bandwidth
+- [ ] TEST 24: Overall Score và So sánh
+
+---
+
+**🎉 Nếu bạn đã hoàn thành tất cả 24 tests và tất cả đều ✅ → APP HOẠT ĐỘNG HOÀN HẢO!**
 
 ---
 

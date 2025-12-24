@@ -40,19 +40,34 @@ public class PerformanceMonitor {
     }
     
     public void endFrame() {
-        long frameEndNano = System.nanoTime();
-        float frameTimeMs = (frameEndNano - frameStartNano) / 1_000_000.0f;
-        
-        frameTimesMs.add(frameTimeMs);
-        if (frameTimesMs.size() > MAX_FRAME_HISTORY) {
-            frameTimesMs.remove(0);
+        try {
+            long frameEndNano = System.nanoTime();
+            float frameTimeMs = (frameEndNano - frameStartNano) / 1_000_000.0f;
+            
+            // Check for invalid frame time
+            if (Float.isNaN(frameTimeMs) || Float.isInfinite(frameTimeMs) || frameTimeMs < 0) {
+                frameTimeMs = 16.67f; // Default to 60fps
+            }
+            
+            // Limit frame time to reasonable range (0-1000ms)
+            frameTimeMs = Math.max(0f, Math.min(1000f, frameTimeMs));
+            
+            synchronized (frameTimesMs) {
+                frameTimesMs.add(frameTimeMs);
+                if (frameTimesMs.size() > MAX_FRAME_HISTORY) {
+                    frameTimesMs.remove(0);
+                }
+            }
+            
+            // Lưu giá trị của frame này để UI đọc (tránh đọc lúc đang reset)
+            lastDrawCalls = drawCalls;
+            lastTriangleCount = triangleCount;
+            lastTextureBinds = textureBinds;
+            lastShaderSwitches = shaderSwitches;
+        } catch (Exception e) {
+            android.util.Log.e("PerformanceMonitor", "Error in endFrame", e);
+            e.printStackTrace();
         }
-        
-        // Lưu giá trị của frame này để UI đọc (tránh đọc lúc đang reset)
-        lastDrawCalls = drawCalls;
-        lastTriangleCount = triangleCount;
-        lastTextureBinds = textureBinds;
-        lastShaderSwitches = shaderSwitches;
     }
     
     // Getters để UI đọc giá trị an toàn (không bị 0 khi đang reset)
@@ -79,50 +94,134 @@ public class PerformanceMonitor {
     }
     
     public float getAverageFrameTime() {
-        if (frameTimesMs.isEmpty()) return 0f;
-        float sum = 0f;
-        for (float time : frameTimesMs) {
-            sum += time;
+        try {
+            if (frameTimesMs == null || frameTimesMs.isEmpty()) return 0f;
+            
+            // Create a copy to avoid concurrent modification
+            List<Float> copy;
+            synchronized (frameTimesMs) {
+                copy = new ArrayList<>(frameTimesMs);
+            }
+            
+            if (copy.isEmpty()) return 0f;
+            
+            float sum = 0f;
+            for (float time : copy) {
+                if (Float.isNaN(time) || Float.isInfinite(time) || time < 0) {
+                    continue; // Skip invalid values
+                }
+                sum += time;
+            }
+            
+            if (copy.size() == 0) return 0f;
+            return sum / copy.size();
+        } catch (Exception e) {
+            android.util.Log.e("PerformanceMonitor", "Error in getAverageFrameTime", e);
+            return 0f;
         }
-        return sum / frameTimesMs.size();
     }
     
     public float getFrameTimeVariance() {
-        if (frameTimesMs.size() < 2) return 0f;
-        float avg = getAverageFrameTime();
-        float variance = 0f;
-        for (float time : frameTimesMs) {
-            float diff = time - avg;
-            variance += diff * diff;
+        try {
+            if (frameTimesMs == null || frameTimesMs.size() < 2) return 0f;
+            
+            // Create a copy to avoid concurrent modification
+            List<Float> copy;
+            synchronized (frameTimesMs) {
+                copy = new ArrayList<>(frameTimesMs);
+            }
+            
+            if (copy.size() < 2) return 0f;
+            
+            float avg = getAverageFrameTime();
+            if (Float.isNaN(avg) || Float.isInfinite(avg)) {
+                return 0f;
+            }
+            
+            float variance = 0f;
+            for (float time : copy) {
+                if (Float.isNaN(time) || Float.isInfinite(time)) {
+                    continue; // Skip invalid values
+                }
+                float diff = time - avg;
+                variance += diff * diff;
+            }
+            
+            return variance / copy.size();
+        } catch (Exception e) {
+            android.util.Log.e("PerformanceMonitor", "Error in getFrameTimeVariance", e);
+            return 0f;
         }
-        return variance / frameTimesMs.size();
     }
     
     public float get1PercentLow() {
-        return getFrameTimePercentile(0.99f);
+        try {
+            return getFrameTimePercentile(0.99f);
+        } catch (Exception e) {
+            android.util.Log.e("PerformanceMonitor", "Error in get1PercentLow", e);
+            return 0f;
+        }
     }
     
     public float get0_1PercentLow() {
-        return getFrameTimePercentile(0.999f);
+        try {
+            return getFrameTimePercentile(0.999f);
+        } catch (Exception e) {
+            android.util.Log.e("PerformanceMonitor", "Error in get0_1PercentLow", e);
+            return 0f;
+        }
     }
     
     public float getFrameTimePercentile(float percentile) {
-        if (frameTimesMs.isEmpty()) return 0f;
-        List<Float> sorted = new ArrayList<>(frameTimesMs);
-        Collections.sort(sorted);
-        int index = (int) (sorted.size() * percentile);
-        index = Math.min(index, sorted.size() - 1);
-        return sorted.get(index);
+        try {
+            if (frameTimesMs == null || frameTimesMs.isEmpty()) return 0f;
+            
+            // Create a copy to avoid concurrent modification
+            List<Float> copy;
+            synchronized (frameTimesMs) {
+                copy = new ArrayList<>(frameTimesMs);
+            }
+            
+            if (copy.isEmpty()) return 0f;
+            
+            List<Float> sorted = new ArrayList<>(copy);
+            Collections.sort(sorted);
+            int index = (int) (sorted.size() * percentile);
+            index = Math.min(index, sorted.size() - 1);
+            index = Math.max(0, index); // Ensure non-negative
+            
+            float result = sorted.get(index);
+            if (Float.isNaN(result) || Float.isInfinite(result)) {
+                return 0f;
+            }
+            return result;
+        } catch (Exception e) {
+            android.util.Log.e("PerformanceMonitor", "Error in getFrameTimePercentile", e);
+            return 0f;
+        }
     }
     
     public int getJankCount() {
-        int count = 0;
-        for (float time : frameTimesMs) {
-            if (time > 16.67f) { // Missed 60fps
-                count++;
+        try {
+            if (frameTimesMs == null || frameTimesMs.isEmpty()) return 0;
+            
+            // Create a copy to avoid concurrent modification
+            List<Float> copy;
+            synchronized (frameTimesMs) {
+                copy = new ArrayList<>(frameTimesMs);
             }
+            
+            int count = 0;
+            for (float time : copy) {
+                if (!Float.isNaN(time) && !Float.isInfinite(time) && time > 16.67f) {
+                    count++;
+                }
+            }
+            return count;
+        } catch (Exception e) {
+            android.util.Log.e("PerformanceMonitor", "Error in getJankCount", e);
+            return 0;
         }
-        return count;
     }
 }
 

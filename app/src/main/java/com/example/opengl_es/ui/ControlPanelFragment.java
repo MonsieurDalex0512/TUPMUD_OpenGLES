@@ -93,11 +93,73 @@ public class ControlPanelFragment extends Fragment {
         com.example.opengl_es.renderer.RenderConfig config = renderer.getRenderConfig();
         
         switchETC1.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            config.useETC1Compression = isChecked;
+            try {
+                config.useETC1Compression = isChecked;
+                // Update texture memory immediately (no need to reload texture, just update estimate)
+                if (renderer != null) {
+                    com.example.opengl_es.monitoring.PerformanceMonitor pm = renderer.getPerformanceMonitor();
+                    if (pm != null) {
+                        // Calculate texture memory based on ETC1 state
+                        int textureWidth = 512;
+                        int textureHeight = 512;
+                        long memoryBytes;
+                        
+                        if (isChecked) {
+                            // ETC1: ~0.5 bytes per pixel (compressed)
+                            memoryBytes = (long) (textureWidth * textureHeight * 0.5f);
+                        } else {
+                            // RGBA8888: 4 bytes per pixel (uncompressed)
+                            memoryBytes = (long) textureWidth * textureHeight * 4;
+                        }
+                        
+                        if (config.useMipmaps) {
+                            // Mipmaps add ~33% more memory
+                            memoryBytes = (long) (memoryBytes * 1.33f);
+                        }
+                        
+                        pm.textureMemoryBytes = memoryBytes;
+                        android.util.Log.d("ControlPanel", String.format(
+                            "ETC1 toggled: %s, Texture Memory updated to %.2f MB",
+                            isChecked, memoryBytes / (1024.0f * 1024.0f)));
+                    }
+                }
+            } catch (Exception e) {
+                android.util.Log.e("ControlPanel", "Error toggling ETC1 compression", e);
+                e.printStackTrace();
+                // Revert toggle on error
+                buttonView.setChecked(!isChecked);
+            }
         });
         
         switchMipmaps.setOnCheckedChangeListener((buttonView, isChecked) -> {
             config.useMipmaps = isChecked;
+            // Update texture memory immediately
+            if (renderer != null) {
+                com.example.opengl_es.monitoring.PerformanceMonitor pm = renderer.getPerformanceMonitor();
+                if (pm != null) {
+                    int textureWidth = 512;
+                    int textureHeight = 512;
+                    long memoryBytes;
+                    
+                    if (config.useETC1Compression) {
+                        // ETC1: ~0.5 bytes per pixel (compressed)
+                        memoryBytes = (long) (textureWidth * textureHeight * 0.5f);
+                    } else {
+                        // RGBA8888: 4 bytes per pixel (uncompressed)
+                        memoryBytes = (long) textureWidth * textureHeight * 4;
+                    }
+                    
+                    if (isChecked) {
+                        // Mipmaps add ~33% more memory
+                        memoryBytes = (long) (memoryBytes * 1.33f);
+                    }
+                    
+                    pm.textureMemoryBytes = memoryBytes;
+                    android.util.Log.d("ControlPanel", String.format(
+                        "Mipmaps toggled: %s, Texture Memory updated to %.2f MB",
+                        isChecked, memoryBytes / (1024.0f * 1024.0f)));
+                }
+            }
         });
         
         switchTextureAtlas.setOnCheckedChangeListener((buttonView, isChecked) -> {
