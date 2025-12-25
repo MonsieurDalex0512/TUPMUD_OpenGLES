@@ -64,36 +64,274 @@ File này cung cấp hướng dẫn chi tiết cách sử dụng **Android Studi
 
 ## 2. CÁC CHỈ SỐ QUAN TRỌNG
 
-### CPU Profiler:
+### 📖 GIẢI THÍCH CÁC CHỈ SỐ PROFILER (Dễ hiểu cho thuyết trình)
 
-#### CPU Usage (%):
+Khi thuyết trình về Profiler, bạn cần giải thích các chỉ số này một cách dễ hiểu. Dưới đây là cách giải thích:
+
+---
+
+### 💻 CPU PROFILER
+
+#### 🔢 **CPU Usage (%)** - Mức độ sử dụng CPU
+
+**Cách giải thích khi thuyết trình:**
+- **"CPU Usage là gì?"** 
+  - Đây là **phần trăm CPU đang được sử dụng** để chạy app
+  - Giống như xem **máy tính đang làm việc bao nhiêu phần trăm**
+  
+- **"Tại sao quan trọng?"**
+  - CPU Usage cao → CPU phải làm việc nhiều → **tốn pin, nóng máy**
+  - CPU Usage thấp → CPU nhàn rỗi → **tiết kiệm pin, mát máy**
+  
+- **"Giá trị tốt/xấu?"**
+  - ✅ **Tốt**: < 50% (CPU còn sức để xử lý)
+  - ⚠️ **Trung bình**: 50-80% (chấp nhận được)
+  - ❌ **Xấu**: > 80% (CPU quá tải → lag, giật)
+  
+- **"Khi nào thấy trong Profiler?"**
+  - Trong CPU timeline, bạn sẽ thấy **đường màu xanh** biểu diễn CPU Usage
+  - Đường cao = CPU usage cao
+  - Đường thấp = CPU usage thấp
+
+**Ví dụ khi thuyết trình:**
+> "Như các bạn thấy ở đây, khi TẮT Back-face Culling, CPU Usage là 45%. Khi BẬT Back-face Culling, CPU Usage giảm xuống còn 30%. Điều này có nghĩa là CPU phải làm việc ít hơn 15%, giúp tiết kiệm pin và giảm nhiệt độ."
+
+---
+
+#### 📊 **Thread Activity** - Hoạt động của các luồng xử lý
+
+**Cách giải thích khi thuyết trình:**
+- **"Thread Activity là gì?"**
+  - Thread = **luồng xử lý** (giống như công nhân trong nhà máy)
+  - Thread Activity = **mức độ bận rộn của các luồng xử lý**
+  
+- **"Tại sao quan trọng?"**
+  - Thread ổn định → app chạy mượt
+  - Thread có nhiều spikes (nhọn) → app bị giật, lag
+  
+- **"Giá trị tốt/xấu?"**
+  - ✅ **Tốt**: Đường thread ổn định, không có spikes lớn
+  - ❌ **Xấu**: Đường thread có nhiều spikes, không ổn định
+  
+- **"Khi nào thấy trong Profiler?"**
+  - Trong CPU timeline, bạn sẽ thấy **các đường màu khác nhau** cho mỗi thread
+  - Thread chính (main thread) thường là đường dày nhất
+
+**Ví dụ khi thuyết trình:**
+> "Nhìn vào Thread Activity, các bạn thấy khi TẮT Back-face Culling, thread có nhiều spikes (nhọn) - điều này gây lag. Khi BẬT Back-face Culling, thread ổn định hơn, không có spikes - app chạy mượt hơn."
+
+---
+
+#### ⏱️ **Method Execution Time** - Thời gian thực thi hàm
+
+**Cách giải thích khi thuyết trình:**
+- **"Method Execution Time là gì?"**
+  - Đây là **thời gian một hàm (method) chạy xong**
+  - Giống như đo **thời gian một công việc hoàn thành**
+  
+- **"Tại sao quan trọng?"**
+  - Method chạy lâu → app chậm
+  - Method chạy nhanh → app nhanh
+  
+- **"Các method quan trọng:"**
+  - `onDrawFrame()`: **Thời gian vẽ 1 frame** (quan trọng nhất!)
+    - Tốt: < 16.67 ms (để đạt 60 FPS)
+    - Xấu: > 33 ms (chỉ đạt < 30 FPS)
+  - `cullObjects()`: Thời gian loại bỏ objects không cần thiết
+  - `getMeshForLOD()`: Thời gian tính toán LOD
+  
+- **"Khi nào thấy trong Profiler?"**
+  - Trong "Call Chart" view, bạn sẽ thấy **các thanh ngang** biểu diễn thời gian
+  - Thanh dài = method chạy lâu
+  - Thanh ngắn = method chạy nhanh
+
+**Ví dụ khi thuyết trình:**
+> "Trong Profiler, tôi tìm method `onDrawFrame()` - đây là hàm vẽ mỗi frame. Khi TẮT Back-face Culling, hàm này chạy mất 20ms. Khi BẬT Back-face Culling, hàm này chỉ chạy 12ms. Giảm 8ms - đây là cải thiện đáng kể!"
+
+---
+
+### 💾 MEMORY PROFILER
+
+#### 📈 **Memory Usage (MB)** - Mức độ sử dụng bộ nhớ
+
+**Cách giải thích khi thuyết trình:**
+- **"Memory Usage là gì?"**
+  - Đây là **số MB bộ nhớ (RAM) app đang sử dụng**
+  - Giống như xem **app đang chiếm bao nhiêu bộ nhớ**
+  
+- **"Tại sao quan trọng?"**
+  - Memory cao → app có thể bị kill bởi hệ thống
+  - Memory ổn định → app chạy ổn định
+  - Memory tăng liên tục → **memory leak** (rò rỉ bộ nhớ) - rất xấu!
+  
+- **"Giá trị tốt/xấu?"**
+  - ✅ **Tốt**: Memory ổn định, không tăng liên tục
+  - ❌ **Xấu**: Memory tăng liên tục (memory leak)
+  
+- **"Khi nào thấy trong Profiler?"**
+  - Trong Memory timeline, bạn sẽ thấy **đường màu xanh** biểu diễn Memory Usage
+  - Đường tăng dần = memory leak
+  - Đường ổn định = tốt
+
+**Ví dụ khi thuyết trình:**
+> "Nhìn vào Memory Usage, khi TẮT ETC1 Compression, app sử dụng 150MB. Khi BẬT ETC1 Compression, app chỉ sử dụng 20MB. Giảm 130MB - tiết kiệm rất nhiều bộ nhớ!"
+
+---
+
+#### 🔄 **Allocations** - Số lượng object được tạo
+
+**Cách giải thích khi thuyết trình:**
+- **"Allocations là gì?"**
+  - Đây là **số lượng object (đối tượng) được tạo mới**
+  - Mỗi lần tạo object mới = 1 allocation
+  
+- **"Tại sao quan trọng?"**
+  - Nhiều allocations → **Garbage Collection (GC)** chạy nhiều → lag
+  - Ít allocations → GC chạy ít → mượt
+  
+- **"Giá trị tốt/xấu?"**
+  - ✅ **Tốt**: Ít allocations trong render loop (vòng lặp vẽ)
+  - ❌ **Xấu**: Nhiều allocations trong render loop → gây GC → lag
+  
+- **"Khi nào thấy trong Profiler?"**
+  - Trong Memory Profiler, bạn sẽ thấy **các sự kiện GC** (garbage collection)
+  - Nhiều GC events = nhiều allocations
+
+**Ví dụ khi thuyết trình:**
+> "Trong render loop, nếu chúng ta tạo nhiều objects mới mỗi frame, sẽ có nhiều allocations. Điều này gây ra Garbage Collection - làm app bị giật. Vì vậy, chúng ta nên tái sử dụng objects thay vì tạo mới."
+
+---
+
+### 📊 CÁCH ĐỌC BIỂU ĐỒ TRONG PROFILER
+
+#### **Timeline View (Xem theo thời gian):**
+- **Trục X (ngang)**: Thời gian (từ trái sang phải)
+- **Trục Y (dọc)**: Giá trị (CPU %, Memory MB, v.v.)
+- **Đường màu**: Biểu diễn giá trị theo thời gian
+  - Đường cao = giá trị cao
+  - Đường thấp = giá trị thấp
+  - Đường ổn định = tốt
+  - Đường có spikes = không tốt
+
+#### **Call Chart View (Biểu đồ gọi hàm):**
+- **Thanh ngang**: Mỗi thanh = 1 method
+- **Độ dài thanh**: Thời gian method chạy
+  - Thanh dài = method chạy lâu
+  - Thanh ngắn = method chạy nhanh
+- **Màu sắc**: Mỗi màu = 1 thread khác nhau
+- **Chiều sâu**: Method gọi method khác = lồng nhau
+
+#### **Flame Chart View (Biểu đồ ngọn lửa):**
+- **Hình dạng**: Giống ngọn lửa (flame)
+- **Chiều rộng**: Thời gian method chạy
+- **Chiều cao**: Độ sâu của call stack (method gọi method)
+- **Màu sắc**: Mỗi màu = 1 method khác nhau
+
+---
+
+### 🎯 CÁC CHỈ SỐ CỤ THỂ CHO OPENGL ES APP
+
+#### **CPU Usage (%):**
 - **Ý nghĩa**: Phần trăm CPU được sử dụng
 - **Tốt**: < 50% (cho mobile app)
 - **Xấu**: > 80% (có thể gây lag)
 
-#### Thread Activity:
+#### **Thread Activity:**
 - **Ý nghĩa**: Hoạt động của các thread
 - **Tốt**: Thread ổn định, không có spikes
 - **Xấu**: Thread có nhiều spikes, không ổn định
 
-#### Method Execution Time:
+#### **Method Execution Time:**
 - **Ý nghĩa**: Thời gian thực thi của từng method
 - **Quan trọng**: 
   - `MyGLRenderer.onDrawFrame()`: Thời gian render 1 frame
   - `CullingManager.cullObjects()`: Thời gian culling
   - `LODManager.getMeshForLOD()`: Thời gian tính LOD
 
-### Memory Profiler:
-
-#### Memory Usage (MB):
+#### **Memory Usage (MB):**
 - **Ý nghĩa**: Bộ nhớ đang sử dụng
 - **Tốt**: Ổn định, không tăng liên tục
 - **Xấu**: Tăng liên tục (memory leak)
 
-#### Allocations:
+#### **Allocations:**
 - **Ý nghĩa**: Số object được tạo
 - **Tốt**: Ít allocations trong render loop
 - **Xấu**: Nhiều allocations (gây GC)
+
+---
+
+## 🎤 HƯỚNG DẪN TRÌNH BÀY KHI THUYẾT TRÌNH
+
+### 📋 Checklist trước khi thuyết trình:
+
+1. ✅ **Chuẩn bị Profiler**
+   - Mở Android Studio
+   - Chạy app
+   - Mở Profiler (Alt + 6)
+   - Chọn process: com.example.opengl_es
+
+2. ✅ **Chuẩn bị app**
+   - Đợi app render ổn định (5 giây)
+   - Mở bottom sheet → Tab "Controls"
+   - Sẵn sàng toggle các optimizations
+
+3. ✅ **Chuẩn bị bảng ghi chép**
+   - In bảng ghi chép (hoặc mở Excel)
+   - Sẵn sàng ghi lại các chỉ số
+
+### 🎯 Cấu trúc trình bày (3 bước):
+
+#### **BƯỚC 1: Giới thiệu chỉ số (30 giây)**
+> "Bây giờ tôi sẽ sử dụng Android Studio Profiler để đo lường performance. Profiler cho chúng ta 2 chỉ số quan trọng:
+> - **CPU Usage**: Mức độ sử dụng CPU (phần trăm)
+> - **Method Execution Time**: Thời gian các hàm chạy (milliseconds)
+> 
+> Tôi sẽ so sánh TRƯỚC và SAU khi bật tối ưu hóa để thấy sự khác biệt."
+
+#### **BƯỚC 2: Demo thực tế (2-3 phút)**
+1. **Show Profiler đang record**
+   > "Đây là Profiler đang record. Tôi đã TẮT Back-face Culling, và đang record 10 giây."
+
+2. **Ghi lại chỉ số TRƯỚC**
+   > "Sau 10 giây, tôi thấy:
+   > - CPU Usage: 45%
+   > - onDrawFrame() time: 20ms
+   > 
+   > Tôi sẽ ghi lại vào bảng."
+
+3. **Toggle optimization**
+   > "Bây giờ tôi sẽ BẬT Back-face Culling trong app."
+
+4. **Ghi lại chỉ số SAU**
+   > "Sau khi bật, tôi record lại 10 giây. Kết quả:
+   > - CPU Usage: 30% (giảm 15%)
+   > - onDrawFrame() time: 12ms (giảm 8ms)
+   > 
+   > Đây là cải thiện đáng kể!"
+
+#### **BƯỚC 3: Phân tích và kết luận (1 phút)**
+> "Như các bạn thấy:
+> - CPU Usage giảm 15% → CPU phải làm việc ít hơn → tiết kiệm pin
+> - onDrawFrame() time giảm 8ms → vẽ nhanh hơn → FPS tăng
+> 
+> Điều này chứng minh Back-face Culling là một tối ưu hóa rất hiệu quả!"
+
+### 💡 Mẹo khi thuyết trình:
+
+1. **Chỉ số quan trọng nhất:**
+   - ✅ **onDrawFrame() time** - Quan trọng nhất! (thời gian vẽ 1 frame)
+   - ✅ **CPU Usage** - Dễ hiểu, dễ so sánh
+   - ⚠️ Thread Activity - Khó giải thích, chỉ nói khi cần
+
+2. **Cách giải thích số liệu:**
+   - ✅ Luôn so sánh TRƯỚC và SAU
+   - ✅ Tính phần trăm cải thiện: "Giảm 15% = từ 45% xuống 30%"
+   - ✅ Liên hệ với trải nghiệm người dùng: "Giảm 8ms → FPS tăng → mượt hơn"
+
+3. **Tránh:**
+   - ❌ Giải thích quá kỹ thuật (thread, stack, v.v.)
+   - ❌ Chỉ đọc số liệu mà không giải thích ý nghĩa
+   - ❌ So sánh quá nhiều chỉ số cùng lúc (chỉ focus 2-3 chỉ số chính)
 
 ---
 
@@ -129,6 +367,11 @@ File này cung cấp hướng dẫn chi tiết cách sử dụng **Android Studi
    └──────────────────────┴──────────┘
 ```
 
+**📖 Giải thích các chỉ số:**
+- **CPU Usage (avg)**: Mức độ sử dụng CPU trung bình (%). Giá trị này cho biết CPU đang làm việc bao nhiêu phần trăm. Ví dụ: 45% = CPU đang làm việc 45% công suất.
+- **CPU Usage (max)**: Mức độ sử dụng CPU tối đa (%). Giá trị cao nhất trong khoảng thời gian record. Ví dụ: 60% = có lúc CPU lên đến 60%.
+- **Thread Activity**: Hoạt động của các luồng xử lý. Quan sát xem có spikes (nhọn) hay không. Spikes = không tốt (gây lag).
+
 #### Bước 3: Record khi BẬT Back-face Culling
 ```
 1. Trong app: Bật "Back-face Culling" (☑)
@@ -161,6 +404,14 @@ File này cung cấp hướng dẫn chi tiết cách sử dụng **Android Studi
    └──────────────────────┴──────────┴──────────┘
 ```
 
+**📖 Giải thích các chỉ số:**
+- **onDrawFrame()**: Đây là hàm vẽ 1 frame (1 hình ảnh). Đây là hàm QUAN TRỌNG NHẤT vì nó quyết định tốc độ render.
+- **onDrawFrame() (avg)**: Thời gian trung bình để vẽ 1 frame (milliseconds). 
+  - Tốt: < 16.67 ms (đạt 60 FPS)
+  - Xấu: > 33 ms (chỉ đạt < 30 FPS)
+- **onDrawFrame() (max)**: Thời gian tối đa (frame chậm nhất). Giá trị này cho biết có frame nào bị lag không.
+- **onDrawFrame() (min)**: Thời gian tối thiểu (frame nhanh nhất). Giá trị này cho biết frame nhanh nhất là bao nhiêu.
+
 #### Bước 5: So sánh và Phân tích
 ```
 1. So sánh CPU Usage:
@@ -180,6 +431,24 @@ File này cung cấp hướng dẫn chi tiết cách sử dụng **Android Studi
 - **CPU Usage**: Giảm 10-20% khi bật
 - **onDrawFrame() time**: Giảm 20-30% khi bật
 - **Thread Activity**: Ổn định hơn (ít spikes)
+
+#### 🎤 Cách giải thích khi thuyết trình:
+
+**Khi show CPU Usage:**
+> "Như các bạn thấy, khi TẮT Back-face Culling, CPU Usage là 45%. Khi BẬT Back-face Culling, CPU Usage giảm xuống còn 30%. Điều này có nghĩa là CPU phải làm việc ít hơn 15% - giúp tiết kiệm pin và giảm nhiệt độ."
+
+**Khi show onDrawFrame() time:**
+> "Quan trọng hơn, thời gian vẽ 1 frame (onDrawFrame) giảm từ 20ms xuống 12ms - giảm 8ms. Điều này có nghĩa là:
+> - Trước: 1 giây vẽ được 50 frame (1000ms ÷ 20ms = 50 FPS)
+> - Sau: 1 giây vẽ được 83 frame (1000ms ÷ 12ms = 83 FPS)
+> 
+> FPS tăng từ 50 lên 83 - cải thiện 66%! App chạy mượt hơn rất nhiều."
+
+**Khi show Thread Activity:**
+> "Nhìn vào Thread Activity, các bạn thấy khi TẮT Back-face Culling, thread có nhiều spikes (nhọn) - điều này gây lag. Khi BẬT Back-face Culling, thread ổn định hơn, không có spikes - app chạy mượt hơn."
+
+**Kết luận:**
+> "Back-face Culling là một tối ưu hóa rất hiệu quả với chi phí thấp. Chỉ cần enable một flag, chúng ta đã giảm được 50% triangles cần render, giảm CPU usage 15%, và tăng FPS 66%. Đây là tối ưu hóa nên LUÔN BẬT."
 
 ---
 
@@ -211,6 +480,10 @@ File này cung cấp hướng dẫn chi tiết cách sử dụng **Android Studi
    └──────────────────────┴──────────┘
 ```
 
+**📖 Giải thích các chỉ số:**
+- **CPU Usage (avg)**: Mức độ sử dụng CPU trung bình (%). Khi TẮT Frustum Culling, CPU phải xử lý tất cả objects (kể cả ngoài tầm nhìn) → CPU Usage cao hơn.
+- **onDrawFrame() (avg)**: Thời gian trung bình vẽ 1 frame (ms). Khi TẮT Frustum Culling, phải render nhiều objects hơn → thời gian vẽ lâu hơn.
+
 #### Bước 3: Record khi BẬT Frustum Culling
 ```
 1. Trong app: Bật "Frustum Culling" (☑)
@@ -239,6 +512,13 @@ File này cung cấp hướng dẫn chi tiết cách sử dụng **Android Studi
    │ onDrawFrame() (avg)          │ _____ ms │ _____ ms │
    └──────────────────────────────┴──────────┴──────────┘
 ```
+
+**📖 Giải thích các chỉ số:**
+- **performFrustumCulling()**: Hàm tính toán và loại bỏ objects ngoài tầm nhìn camera. Đây là "chi phí" của culling - phải tốn thời gian để tính toán.
+  - Giá trị mong đợi: ~0.5-2ms (rất nhỏ)
+  - Nếu > 5ms → culling quá chậm, cần tối ưu
+- **onDrawFrame() (avg)**: Thời gian vẽ 1 frame. Khi BẬT Frustum Culling, render ít objects hơn → thời gian vẽ giảm.
+  - Giảm mong đợi: 10-15% (ví dụ: từ 15ms xuống 13ms)
 
 #### Bước 5: So sánh và Phân tích
 ```
@@ -290,6 +570,10 @@ File này cung cấp hướng dẫn chi tiết cách sử dụng **Android Studi
    └──────────────────────┴──────────┘
 ```
 
+**📖 Giải thích các chỉ số:**
+- **CPU Usage (avg)**: Mức độ sử dụng CPU trung bình (%). Khi TẮT Occlusion Culling, CPU không phải tính toán culling → CPU Usage có thể thấp hơn, nhưng phải render nhiều objects hơn.
+- **onDrawFrame() (avg)**: Thời gian vẽ 1 frame (ms). Khi TẮT Occlusion Culling, phải render cả objects bị che → thời gian vẽ lâu hơn.
+
 #### Bước 3: Record khi BẬT Occlusion Culling
 ```
 1. Trong app: Bật "Occlusion Culling" (☑)
@@ -316,6 +600,13 @@ File này cung cấp hướng dẫn chi tiết cách sử dụng **Android Studi
    │ onDrawFrame() (avg)          │ _____ ms │ _____ ms │
    └──────────────────────────────┴──────────┴──────────┘
 ```
+
+**📖 Giải thích các chỉ số:**
+- **performOcclusionCulling()**: Hàm tính toán và loại bỏ objects bị che khuất. Đây là "chi phí" của occlusion culling.
+  - Giá trị mong đợi: ~1-3ms (nhiều hơn frustum culling vì phức tạp hơn)
+  - Lưu ý: Cost này có thể lớn hơn frustum culling, nhưng vẫn đáng giá nếu scene có nhiều objects chồng lên nhau
+- **onDrawFrame() (avg)**: Thời gian vẽ 1 frame. Khi BẬT Occlusion Culling, render ít objects hơn (bỏ qua objects bị che) → thời gian vẽ giảm.
+  - Giảm mong đợi: 5-10% (ví dụ: từ 14ms xuống 13ms)
 
 #### Bước 5: So sánh và Phân tích
 ```
@@ -367,6 +658,10 @@ File này cung cấp hướng dẫn chi tiết cách sử dụng **Android Studi
    └──────────────────────┴──────────┘
 ```
 
+**📖 Giải thích các chỉ số:**
+- **CPU Usage (avg)**: Mức độ sử dụng CPU trung bình (%). Khi BẬT LOD, objects ở xa dùng mesh đơn giản hơn → ít triangles hơn → CPU xử lý nhanh hơn → CPU Usage giảm.
+- **onDrawFrame() (avg)**: Thời gian vẽ 1 frame (ms). Khi BẬT LOD, render ít triangles hơn (objects xa dùng mesh đơn giản) → thời gian vẽ giảm.
+
 #### Bước 3: Record khi TẮT LOD
 ```
 1. Trong app: Tắt "Level of Detail (LOD)" (☐)
@@ -393,6 +688,13 @@ File này cung cấp hướng dẫn chi tiết cách sử dụng **Android Studi
    │ onDrawFrame() (avg)  │ _____ ms │ _____ ms │
    └──────────────────────┴──────────┴──────────┘
 ```
+
+**📖 Giải thích các chỉ số:**
+- **calculateLOD()**: Hàm tính toán LOD level cho mỗi object (dựa trên khoảng cách từ camera). Đây là "chi phí" của LOD.
+  - Giá trị mong đợi: ~0.1-0.5ms (rất nhỏ - chỉ tính khoảng cách)
+  - Cost này RẤT NHỎ so với lợi ích (giảm triangles)
+- **onDrawFrame() (avg)**: Thời gian vẽ 1 frame. Khi BẬT LOD, render ít triangles hơn → thời gian vẽ giảm đáng kể.
+  - Giảm mong đợi: 10-15% (ví dụ: từ 16ms xuống 14ms)
 
 #### Bước 5: So sánh và Phân tích
 ```
@@ -524,6 +826,11 @@ So sánh performance giữa Simple Shader và Complex Shader.
    └──────────────────────┴──────────┘
 ```
 
+**📖 Giải thích các chỉ số:**
+- **Memory Usage (avg)**: Bộ nhớ trung bình app đang sử dụng (MB). Khi TẮT ETC1, texture không nén → tốn nhiều memory hơn.
+  - Ví dụ: Texture 512×512 không nén = 1.0 MB
+- **Memory Usage (max)**: Bộ nhớ tối đa app sử dụng (MB). Giá trị này cho biết peak memory usage.
+
 #### Bước 3: Record khi BẬT ETC1
 ```
 1. Trong app: Bật "ETC1 Texture Compression" (☑)
@@ -550,6 +857,12 @@ So sánh performance giữa Simple Shader và Complex Shader.
    │ Texture Allocations  │ _____    │ _____    │
    └──────────────────────┴──────────┴──────────┘
 ```
+
+**📖 Giải thích các chỉ số:**
+- **Memory Usage (avg)**: Bộ nhớ trung bình. Khi BẬT ETC1, texture được nén → memory giảm đáng kể.
+  - Giảm mong đợi: 80-90% (ví dụ: từ 1.0 MB xuống 0.13 MB cho texture 512×512)
+- **Texture Allocations**: Số lần tạo texture mới. Giá trị này cho biết có bao nhiêu texture được load.
+  - Lưu ý: ETC1 không thay đổi số allocations, chỉ thay đổi kích thước mỗi texture
 
 #### Bước 5: So sánh và Phân tích
 ```
@@ -594,6 +907,11 @@ So sánh performance giữa Simple Shader và Complex Shader.
    │ CPU Usage (avg)      │ _____%   │
    └──────────────────────┴──────────┘
 ```
+
+**📖 Giải thích các chỉ số:**
+- **Memory Usage (avg)**: Bộ nhớ trung bình. Khi TẮT Mipmaps, chỉ lưu texture gốc → memory thấp hơn.
+  - Ví dụ: Texture 512×512 không mipmaps = 1.0 MB
+- **CPU Usage (avg)**: Mức độ sử dụng CPU. Khi TẮT Mipmaps, GPU luôn dùng texture gốc (lớn) → tốn bandwidth → CPU có thể cao hơn.
 
 #### Bước 3: Record khi BẬT Mipmaps
 ```
@@ -654,6 +972,10 @@ So sánh performance giữa Simple Shader và Complex Shader.
    └──────────────────────┴──────────┘
 ```
 
+**📖 Giải thích các chỉ số:**
+- **CPU Usage (avg)**: Mức độ sử dụng CPU. Khi TẮT Texture Atlasing, phải bind texture nhiều lần (mỗi object 1 lần) → tốn CPU hơn.
+- **onDrawFrame() (avg)**: Thời gian vẽ 1 frame. Khi TẮT Texture Atlasing, nhiều texture binds → thời gian vẽ lâu hơn.
+
 #### Bước 3: Record khi BẬT Texture Atlasing
 ```
 1. Trong app: Bật "Texture Atlasing" (☑)
@@ -680,6 +1002,14 @@ So sánh performance giữa Simple Shader và Complex Shader.
    │ onDrawFrame() (avg)  │ _____ ms │ _____ ms │
    └──────────────────────┴──────────┴──────────┘
 ```
+
+**📖 Giải thích các chỉ số:**
+- **glBindTexture() calls**: Số lần gọi hàm bind texture (gắn texture vào GPU). 
+  - Khi TẮT Texture Atlasing: Mỗi object bind 1 lần → N objects = N lần bind
+  - Khi BẬT Texture Atlasing: Chỉ bind 1 lần cho tất cả → 1 lần bind
+  - Giảm mong đợi: Từ N xuống 1 (ví dụ: từ 64 xuống 1)
+- **onDrawFrame() (avg)**: Thời gian vẽ 1 frame. Ít texture binds → thời gian vẽ giảm.
+  - Giảm mong đợi: 5-10% (ví dụ: từ 13ms xuống 12ms)
 
 #### Bước 5: So sánh và Phân tích
 ```
@@ -731,6 +1061,10 @@ So sánh performance giữa Simple Shader và Complex Shader.
    └──────────────────────┴──────────┘
 ```
 
+**📖 Giải thích các chỉ số:**
+- **CPU Usage (avg)**: Mức độ sử dụng CPU. Khi TẮT Instanced Rendering, mỗi object = 1 draw call → nhiều draw calls → CPU phải giao tiếp với GPU nhiều lần → CPU Usage cao.
+- **onDrawFrame() (avg)**: Thời gian vẽ 1 frame. Nhiều draw calls → thời gian vẽ lâu hơn.
+
 #### Bước 3: Record khi BẬT Instanced Rendering
 ```
 1. Trong app: Bật "Instanced Rendering" (☑)
@@ -759,6 +1093,15 @@ So sánh performance giữa Simple Shader và Complex Shader.
    │ onDrawFrame() (avg)  │ _____ ms │ _____ ms │
    └──────────────────────┴──────────┴──────────┘
 ```
+
+**📖 Giải thích các chỉ số:**
+- **Draw calls**: Số lần gọi lệnh vẽ (mỗi lần CPU bảo GPU "vẽ cái này" = 1 draw call).
+  - Khi TẮT Instanced Rendering: Mỗi object = 1 draw call → N objects = N draw calls
+  - Khi BẬT Instanced Rendering: Tất cả objects = 1 draw call (instanced)
+  - Giảm mong đợi: Từ N xuống 1 (ví dụ: từ 64 xuống 1)
+- **Instanced draw calls**: Số lần gọi instanced rendering. Khi BẬT = 1 (vẽ tất cả cùng lúc).
+- **onDrawFrame() (avg)**: Thời gian vẽ 1 frame. Ít draw calls → ít CPU-GPU communication → thời gian vẽ giảm.
+  - Giảm mong đợi: 20-30% (ví dụ: từ 13ms xuống 10ms)
 
 #### Bước 5: So sánh và Phân tích
 ```
@@ -810,6 +1153,10 @@ So sánh performance giữa Simple Shader và Complex Shader.
    └──────────────────────┴──────────┘
 ```
 
+**📖 Giải thích các chỉ số:**
+- **CPU Usage (avg)**: Mức độ sử dụng CPU. Khi TẮT Depth Pre-pass, chỉ render 1 lần (depth + color cùng lúc) → CPU Usage thấp hơn, nhưng GPU phải render nhiều pixels bị che (overdraw).
+- **onDrawFrame() (avg)**: Thời gian vẽ 1 frame. Khi TẮT Depth Pre-pass, GPU render nhiều pixels không cần thiết → thời gian vẽ có thể lâu hơn.
+
 #### Bước 3: Record khi BẬT Depth Pre-pass
 ```
 1. Trong app: Bật "Depth Pre-Pass" (☑)
@@ -839,6 +1186,14 @@ So sánh performance giữa Simple Shader và Complex Shader.
    │ onDrawFrame() (avg)  │ _____ ms │ _____ ms │
    └──────────────────────┴──────────┴──────────┘
 ```
+
+**📖 Giải thích các chỉ số:**
+- **Draw calls (1 pass)**: Số draw calls khi TẮT Depth Pre-pass (chỉ render 1 lần - depth + color cùng lúc).
+- **Draw calls (2 passes)**: Số draw calls khi BẬT Depth Pre-pass (render 2 lần - depth pass + color pass).
+  - Tăng: Gấp đôi (ví dụ: từ 64 lên 128)
+  - Lưu ý: Tăng draw calls nhưng giảm pixels rendered (do giảm overdraw)
+- **onDrawFrame() (avg)**: Thời gian vẽ 1 frame. Mặc dù tăng draw calls, nhưng giảm overdraw → thời gian vẽ có thể giảm.
+  - Giảm mong đợi: 5-10% (ví dụ: từ 14ms xuống 13ms)
 
 #### Bước 5: So sánh và Phân tích
 ```
@@ -890,6 +1245,10 @@ So sánh performance giữa Simple Shader và Complex Shader.
    └──────────────────────┴──────────┘
 ```
 
+**📖 Giải thích các chỉ số:**
+- **CPU Usage (avg)**: Mức độ sử dụng CPU. Khi TẮT Overdraw Heatmap, render bình thường (1 lần) → CPU Usage thấp.
+- **onDrawFrame() (avg)**: Thời gian vẽ 1 frame. Khi TẮT Overdraw Heatmap, render bình thường → thời gian vẽ nhanh.
+
 #### Bước 3: Record khi BẬT Overdraw Heatmap
 ```
 1. Trong app: Bật "Show Overdraw Heatmap" (☑)
@@ -919,6 +1278,14 @@ So sánh performance giữa Simple Shader và Complex Shader.
    - Disable depth test → render tất cả pixels
    - Additive blending → tốn GPU hơn
 ```
+
+**📖 Giải thích các chỉ số:**
+- **CPU Usage (avg)**: Khi BẬT Overdraw Heatmap, CPU Usage TĂNG vì phải render objects nhiều lần (4 lần) để visualize overdraw.
+  - Tăng mong đợi: 20-30% (ví dụ: từ 30% lên 40%)
+  - Lưu ý: Đây là tính năng debug/visualization, không phải tối ưu hóa → tăng CPU là bình thường
+- **onDrawFrame() (avg)**: Thời gian vẽ 1 frame TĂNG vì render 4 lần.
+  - Tăng mong đợi: 30-50% (ví dụ: từ 12ms lên 18ms)
+  - Lưu ý: Overdraw Heatmap chỉ dùng để visualize, không dùng trong production
 
 #### Chỉ số mong đợi:
 - **CPU Usage**: Tăng 20-30% khi bật Overdraw Heatmap
@@ -959,4 +1326,5 @@ So sánh performance giữa Simple Shader và Complex Shader.
 ---
 
 **📝 File này cung cấp hướng dẫn chi tiết cách sử dụng Android Studio Profiler để đo lường và so sánh performance cho từng tính năng tối ưu hóa.**
+
 

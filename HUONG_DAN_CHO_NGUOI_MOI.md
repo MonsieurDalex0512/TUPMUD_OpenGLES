@@ -518,23 +518,55 @@ Sau khi click tab "Charts", bạn sẽ thấy 2 biểu đồ:
 
 ### 📈 CÁC CHỈ SỐ QUAN TRỌNG TRONG PROFILER:
 
-#### CPU Profiler:
-- **CPU Usage (%)**: Phần trăm CPU được sử dụng
-- **Threads**: Số thread đang chạy
-- **Methods**: Các method được gọi và thời gian thực thi
+#### 💻 CPU Profiler:
 
-#### Memory Profiler:
-- **Memory Usage (MB)**: Bộ nhớ đang sử dụng
-- **Allocations**: Số object được tạo
-- **GC Events**: Garbage collection events
+**CPU Usage (%):**
+- **Là gì?** Phần trăm CPU đang được sử dụng để chạy app
+- **Ví dụ:** 45% = CPU đang làm việc 45% công suất
+- **Tốt:** < 50% (CPU còn sức để xử lý)
+- **Xấu:** > 80% (CPU quá tải → lag, giật)
+- **Khi nào thấy:** Trong CPU timeline, đường màu xanh biểu diễn CPU Usage
+
+**Thread Activity:**
+- **Là gì?** Hoạt động của các luồng xử lý (threads)
+- **Tốt:** Thread ổn định, không có spikes (nhọn)
+- **Xấu:** Thread có nhiều spikes → app bị giật, lag
+- **Khi nào thấy:** Trong CPU timeline, các đường màu khác nhau cho mỗi thread
+
+**Method Execution Time:**
+- **Là gì?** Thời gian một hàm (method) chạy xong (milliseconds)
+- **Quan trọng nhất:** `onDrawFrame()` - thời gian vẽ 1 frame
+  - Tốt: < 16.67 ms (đạt 60 FPS)
+  - Xấu: > 33 ms (chỉ đạt < 30 FPS)
+- **Khi nào thấy:** Trong "Call Chart" view, các thanh ngang biểu diễn thời gian
+
+#### 💾 Memory Profiler:
+
+**Memory Usage (MB):**
+- **Là gì?** Số MB bộ nhớ (RAM) app đang sử dụng
+- **Tốt:** Ổn định, không tăng liên tục
+- **Xấu:** Tăng liên tục (memory leak - rò rỉ bộ nhớ)
+- **Khi nào thấy:** Trong Memory timeline, đường màu xanh biểu diễn Memory Usage
+
+**Allocations:**
+- **Là gì?** Số lượng object (đối tượng) được tạo mới
+- **Tốt:** Ít allocations trong render loop
+- **Xấu:** Nhiều allocations → Garbage Collection (GC) chạy nhiều → lag
+- **Khi nào thấy:** Trong Memory Profiler, các sự kiện GC (garbage collection)
 
 ### 🎯 HƯỚNG DẪN CHI TIẾT:
 
 **📖 Xem file:** `HUONG_DAN_PROFILER.md` - Hướng dẫn chi tiết cách sử dụng Profiler cho từng tính năng.
 
+**Hoặc xem trong các file báo cáo nhóm:**
+- `BAO_CAO_NHOM_1_CULLING_TECHNIQUES.md` - Nhóm 1: Culling Techniques (có hướng dẫn Profiler cho từng chức năng)
+- `BAO_CAO_NHOM_2_TEXTURE_OPTIMIZATIONS.md` - Nhóm 2: Texture Optimizations (có hướng dẫn Profiler cho từng chức năng)
+- `BAO_CAO_NHOM_3_OTHER_OPTIMIZATIONS.md` - Nhóm 3: Other Optimizations (có hướng dẫn Profiler cho từng chức năng)
+
 **Tóm tắt nhanh:**
 - Mỗi test case bên dưới có phần "📊 SỬ DỤNG ANDROID STUDIO PROFILER"
-- Xem chi tiết trong `HUONG_DAN_PROFILER.md` - Mục tương ứng
+- Mỗi chức năng trong các file báo cáo nhóm đều có phần hướng dẫn Profiler chi tiết ngay bên dưới
+- Giải thích các chỉ số được đặt ngay tại từng chức năng để dễ hiểu
 
 ---
 

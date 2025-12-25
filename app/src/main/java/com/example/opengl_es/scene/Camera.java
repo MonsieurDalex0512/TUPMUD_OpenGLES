@@ -83,10 +83,13 @@ public class Camera {
      * Zoom camera (change radius)
      */
     public void zoom(float delta) {
+        // Add delta directly (delta is already calculated from scale factor)
         radius += delta;
+        
         // Limit zoom range
-        if (radius < 5f) radius = 5f;
-        if (radius > 50f) radius = 50f;
+        if (radius < 3f) radius = 3f;
+        if (radius > 100f) radius = 100f;
+        
         updatePosition();
     }
 
@@ -94,22 +97,29 @@ public class Camera {
      * Pan camera (move target point)
      */
     public void pan(float deltaX, float deltaY) {
-        // Calculate right and up vectors
+        // Calculate right and up vectors based on camera orientation
         float azRad = (float) (azimuth * Math.PI / 180.0);
         float elRad = (float) (elevation * Math.PI / 180.0);
         
-        // Right vector (perpendicular to view direction)
+        // Right vector (perpendicular to view direction, in horizontal plane)
         float rightX = (float) -Math.sin(azRad);
         float rightZ = (float) Math.cos(azRad);
+        
+        // Forward vector (view direction projected to horizontal plane)
+        float forwardX = (float) Math.cos(azRad);
+        float forwardZ = (float) Math.sin(azRad);
         
         // Up vector (always Y up)
         float upY = 1.0f;
         
-        // Pan speed based on distance
-        float panSpeed = radius * 0.01f;
+        // Pan speed based on distance (closer = slower pan, farther = faster pan)
+        float panSpeed = radius * 0.02f;
         
+        // Pan horizontally (right/left)
         targetX += rightX * deltaX * panSpeed;
         targetZ += rightZ * deltaX * panSpeed;
+        
+        // Pan vertically (up/down)
         targetY += upY * deltaY * panSpeed;
         
         updatePosition();

@@ -41,8 +41,10 @@ public class MyGLSurfaceView extends GLSurfaceView {
             @Override
             public boolean onScale(ScaleGestureDetector detector) {
                 float scaleFactor = detector.getScaleFactor();
-                // Invert scale: pinch in = zoom in (decrease radius)
-                float zoomDelta = (1.0f - scaleFactor) * 2.0f;
+                // Pinch in (scaleFactor < 1.0) = zoom in (decrease radius)
+                // Pinch out (scaleFactor > 1.0) = zoom out (increase radius)
+                // Use logarithmic scale for smoother zoom
+                float zoomDelta = (1.0f - scaleFactor) * 3.0f; // Increased sensitivity
                 if (renderer != null && renderer.getSceneManager() != null) {
                     renderer.getSceneManager().getCamera().zoom(zoomDelta);
                 }
@@ -67,15 +69,20 @@ public class MyGLSurfaceView extends GLSurfaceView {
         
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                // Single touch: prepare for rotation
+                lastTouchX = event.getX();
+                lastTouchY = event.getY();
+                isRotating = true;
+                isPanning = false;
+                return true;
+                
             case MotionEvent.ACTION_POINTER_DOWN:
-                if (pointerCount == 1) {
-                    // Single touch: prepare for rotation
-                    lastTouchX = event.getX();
-                    lastTouchY = event.getY();
-                    isRotating = true;
-                    isPanning = false;
-                } else if (pointerCount == 2) {
-                    // Two fingers: pan
+                if (pointerCount == 2) {
+                    // Two fingers: prepare for pan
+                    float avgX = (event.getX(0) + event.getX(1)) / 2.0f;
+                    float avgY = (event.getY(0) + event.getY(1)) / 2.0f;
+                    lastTouchX = avgX;
+                    lastTouchY = avgY;
                     isPanning = true;
                     isRotating = false;
                 }
@@ -91,12 +98,12 @@ public class MyGLSurfaceView extends GLSurfaceView {
                     float deltaX = event.getX() - lastTouchX;
                     float deltaY = event.getY() - lastTouchY;
                     
-                    // Rotate horizontally (azimuth)
-                    float azimuthDelta = deltaX * 0.5f; // Sensitivity
+                    // Rotate horizontally (azimuth) - invert for natural rotation
+                    float azimuthDelta = -deltaX * 0.8f; // Increased sensitivity, inverted
                     renderer.getSceneManager().getCamera().rotateAzimuth(azimuthDelta);
                     
-                    // Rotate vertically (elevation)
-                    float elevationDelta = deltaY * 0.5f; // Sensitivity
+                    // Rotate vertically (elevation) - invert for natural rotation
+                    float elevationDelta = -deltaY * 0.8f; // Increased sensitivity, inverted
                     renderer.getSceneManager().getCamera().rotateElevation(elevationDelta);
                     
                     lastTouchX = event.getX();
@@ -111,7 +118,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
                     float deltaX = avgX - lastTouchX;
                     float deltaY = avgY - lastTouchY;
                     
-                    renderer.getSceneManager().getCamera().pan(deltaX, -deltaY); // Invert Y
+                    // Pan with proper sensitivity (invert Y for natural movement)
+                    renderer.getSceneManager().getCamera().pan(deltaX * 0.01f, -deltaY * 0.01f);
                     
                     lastTouchX = avgX;
                     lastTouchY = avgY;
